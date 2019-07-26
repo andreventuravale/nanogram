@@ -1,3 +1,17 @@
+function curry (fn) {
+  const seed = (...currentArgs) => {
+    if (currentArgs.length >= fn.length) {
+      return fn.apply(this, currentArgs)
+    } else {
+      return function (...newArgs) {
+        return seed.call(this, ...currentArgs, ...newArgs)
+      }
+    }
+  }
+
+  return seed
+}
+
 function compose () {
 
 }
@@ -44,6 +58,6 @@ function text (value, input, offset) {
 module.exports = {
   compose,
   many,
-  regex,
+  regex: curry(regex),
   text
 }

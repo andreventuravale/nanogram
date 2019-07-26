@@ -3,6 +3,12 @@ const { expect } = require('chai')
 const { compose, many, regex, text } = require('../src')
 
 suite('gist', () => {
+  suite('curry', () => {
+    test('happy case', () => {
+      expect(regex(/\d/)('1+2=3')(0)).to.eql(regex(/\d/, '1+2=3', 0))
+    })
+  })
+
   // suite('compose', () => {
   //   test('true - happy case', () => {
   //     const number = regex(/\d/)
