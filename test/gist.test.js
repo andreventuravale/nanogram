@@ -9,25 +9,57 @@ suite('gist', () => {
     })
   })
 
-  // suite('compose', () => {
-  //   test('true - happy case', () => {
-  //     const number = regex(/\d/)
+  suite('compose', () => {
+    test('true - happy case', () => {
+      const number = regex(/\d/)
 
-  //     compose(
-  //       number(),
-  //       text('+'),
-  //       number(),
-  //       text('='),
-  //       number()
-  //     )
+      const expr = compose(
+        number(),
+        text('+'),
+        number(),
+        text('='),
+        number()
+      )
 
-  //     const source = '1+2=3'
+      const result = expr('1+2=3', 0)
 
-  //     const result = regex(/\d/, source, 0)
+      expect(result).to.eql([true, 0, 5, [
+        [true, 0, 1],
+        [true, 1, 2],
+        [true, 2, 3],
+        [true, 3, 4],
+        [true, 4, 5]
+      ]])
+    })
 
-  //     expect(result).to.eql([true, 0, 1])
-  //   })
-  // })
+    test('false - empty composition', () => {
+      const expr = compose()
+
+      const result = expr('1', 0)
+
+      expect(result).to.eql([false])
+    })
+
+    test('false - empty input', () => {
+      const number = regex(/\d/)
+
+      const expr = compose(
+        number()
+      )
+
+      const result = expr('', 0)
+
+      expect(result).to.eql([false])
+    })
+
+    test('false - empth composition with empty input', () => {
+      const expr = compose()
+
+      const result = expr('', 0)
+
+      expect(result).to.eql([false])
+    })
+  })
 
   suite('regex', () => {
     test('true at begin of input', () => {
@@ -97,7 +129,7 @@ suite('gist', () => {
     })
   })
 
-  suite('many', () => {
+  suite.skip('many', () => {
     test('true - happy case', () => {
       const source = '1,2,3'
 
