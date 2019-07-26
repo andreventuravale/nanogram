@@ -12,8 +12,17 @@ function curry (fn) {
   return seed
 }
 
-function compose () {
-
+function compose (...list) {
+  return (input, offset) => {
+    let i = offset
+    let r
+    for (let index = 0; index < list.length; index++) {
+      const element = list[index]
+      r = element(input, i)
+      i = r[2]
+    }
+    return [true, offset, i]
+  }
 }
 
 function many (element, separator, input, offset) {
@@ -57,7 +66,7 @@ function text (value, input, offset) {
 
 module.exports = {
   compose,
-  many,
+  many: curry(many),
   regex: curry(regex),
-  text
+  text: curry(text)
 }

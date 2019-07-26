@@ -9,25 +9,23 @@ suite('gist', () => {
     })
   })
 
-  // suite('compose', () => {
-  //   test('true - happy case', () => {
-  //     const number = regex(/\d/)
+  suite('compose', () => {
+    test('true - happy case', () => {
+      const number = regex(/\d/)
 
-  //     compose(
-  //       number(),
-  //       text('+'),
-  //       number(),
-  //       text('='),
-  //       number()
-  //     )
+      const expr = compose(
+        number(),
+        text('+'),
+        number(),
+        text('='),
+        number()
+      )
 
-  //     const source = '1+2=3'
+      const result = expr('1+2=3', 0)
 
-  //     const result = regex(/\d/, source, 0)
-
-  //     expect(result).to.eql([true, 0, 1])
-  //   })
-  // })
+      expect(result).to.eql([true, 0, 5])
+    })
+  })
 
   suite('regex', () => {
     test('true at begin of input', () => {
