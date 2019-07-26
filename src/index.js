@@ -2,7 +2,7 @@ function compose () {
 
 }
 
-function many (input, offset, element, separator) {
+function many (element, separator, input, offset) {
   let e = element(input, offset)
   if (e[0]) {
     const f = e
@@ -20,7 +20,7 @@ function many (input, offset, element, separator) {
   return [false]
 }
 
-function regex (input, offset, regex) {
+function regex (regex, input, offset) {
   const i = offset
   let j = offset
   const k = regex.lastIndex
@@ -31,7 +31,7 @@ function regex (input, offset, regex) {
   return j > i ? [true, i, j] : [false]
 }
 
-function text (input, offset, value) {
+function text (value, input, offset) {
   let i = offset
   let j = 0
   while (input[i] && input[i] === value[j]) {
