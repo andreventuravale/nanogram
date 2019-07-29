@@ -1,23 +1,45 @@
 const { expect } = require('chai')
 
-const { compose, many, regex, text } = require('../src')
+const { compose, list, one } = require('../src')
 
 suite('gist', () => {
   suite('curry', () => {
     test('happy case', () => {
-      expect(regex(/\d/)('1+2=3')(0)).to.eql(regex(/\d/, '1+2=3', 0))
+      expect(one(/\d/)('1+2=3')(0)).to.eql(one(/\d/, '1+2=3', 0))
     })
   })
 
-  suite('compose', () => {
+  suite.skip('compose', () => {
+    test('proof of concept', () => {
+      const number = one(/\d+/)
+
+      const expr = compose(
+        number,
+        one(/\+/),
+        number,
+        one(/=/),
+        number
+      )
+
+      const result = expr('1+22=333', 0)
+
+      expect(result).to.eql([true, 0, 8, [
+        [true, 0, 1],
+        [true, 1, 2],
+        [true, 2, 4],
+        [true, 4, 5],
+        [true, 5, 8]
+      ]])
+    })
+
     test('true - happy case', () => {
-      const number = regex(/\d/)
+      const number = one(/\d/)
 
       const expr = compose(
         number(),
-        text('+'),
+        one(/\+/),
         number(),
-        text('='),
+        one(/=/),
         number()
       )
 
@@ -41,7 +63,7 @@ suite('gist', () => {
     })
 
     test('false - empty input', () => {
-      const number = regex(/\d/)
+      const number = one(/\d/)
 
       const expr = compose(
         number()
@@ -61,113 +83,90 @@ suite('gist', () => {
     })
   })
 
-  suite('regex', () => {
-    test('true at begin of input', () => {
-      const source = '1+2=3'
+  suite.only('one', () => {
+    // test pure function
 
-      const result = regex(/\d/, source, 0)
+    test('stateless regex', () => {
+      const source = '123'
 
-      expect(result).to.eql([true, 0, 1])
+      const result = one(/\d+/, source, 0)
+
+      expect(result).to.eql([true, 0, 3, ['123']])
     })
 
-    test('true at end of input - regex without global flag', () => {
-      const source = '1+22=333'
+    test('stateless regex with offset', () => {
+      const source = '123'
 
-      const result = regex(/\d/, source, 5)
+      const result = one(/\d+/, source, 1)
 
-      expect(result).to.eql([true, 5, 8])
+      expect(result).to.eql([true, 1, 3, ['23']])
     })
 
-    test('true at end of input - regex with global flag', () => {
-      const source = '1+22=333'
+    test('global regex', () => {
+      const source = '1 22 333'
 
-      const result = regex(/\d/g, source, 5)
+      const result = one(/\d+/g, source, 2)
 
-      expect(result).to.eql([true, 5, 8])
-    })
-  })
-
-  suite('text', () => {
-    test('true at begin of input', () => {
-      const source = 'foo=bar'
-
-      const result = text('foo', source, 0)
-
-      expect(result).to.eql([true, 0, 3])
+      expect(result).to.eql([true, 2, 4, ['22']])
     })
 
-    test('true at end of input', () => {
-      const source = 'foo=bar'
+    test('sticky regex', () => {
+      const source = '1 22 333'
 
-      const result = text('bar', source, 4)
+      const result = one(/\d+/y, source, 2)
 
-      expect(result).to.eql([true, 4, 7])
-    })
-
-    test('false due to end of input', () => {
-      const source = 'foo=ba'
-
-      const result = text('bar', source, 4)
-
-      expect(result).to.eql([false])
-    })
-
-    test('false due to mismatch', () => {
-      const source = 'foo=bar'
-
-      const result = text('qux', source, 4)
-
-      expect(result).to.eql([false])
-    })
-
-    test('false due to offset past end of input', () => {
-      const source = 'foo=bar'
-
-      const result = text('bar', source, 1)
-
-      expect(result).to.eql([false])
+      expect(result).to.eql([true, 2, 4, ['22']])
     })
   })
 
-  suite.skip('many', () => {
-    test('true - happy case', () => {
+  suite('list', () => {
+    test.only('true - happy case', () => {
       const source = '1,2,3'
 
-      const element = (input, offset) => regex(/\d/, input, offset)
+      const element = (input, offset) => one(/\d/, input, offset)
 
-      const separator = (input, offset) => regex(/,/, input, offset)
+      const separator = (input, offset) => one(/,/, input, offset)
 
-      expect(many(element, separator, source, 0)).to.eql([true, 0, 5])
+      expect(list(element, separator, source, 0)).to.eql([
+        true,
+        0,
+        5,
+        [
+          [true, 0, 1, ['1']],
+          [true, 2, 3, ['2']],
+          [true, 4, 5, ['3']]
+        ]
+      ])
     })
 
     test('true - single element', () => {
       const source = '1'
 
-      const element = (input, offset) => regex(/\d/, input, offset)
+      const element = (input, offset) => one(/\d/, input, offset)
 
-      const separator = (input, offset) => regex(/,/, input, offset)
+      const separator = (input, offset) => one(/,/, input, offset)
 
-      expect(many(element, separator, source, 0)).to.eql([true, 0, 1])
+      expect(list(element, separator, source, 0)).to.eql([true, 0, 1])
     })
 
     test('true - ignores the last separator with no subsequent element', () => {
       const source = '1,2,'
 
-      const element = (input, offset) => regex(/\d/, input, offset)
+      const element = (input, offset) => one(/\d/, input, offset)
 
-      const separator = (input, offset) => regex(/,/, input, offset)
+      const separator = (input, offset) => one(/,/, input, offset)
 
-      expect(many(element, separator, source, 0)).to.eql([true, 0, 3])
+      expect(list(element, separator, source, 0)).to.eql([true, 0, 3])
     })
 
     test('false - empty input', () => {
       const source = ''
 
-      const element = (input, offset) => regex(/\d/, input, offset)
+      const element = (input, offset) => one(/\d/, input, offset)
 
-      const separator = (input, offset) => regex(/,/, input, offset)
+      const separator = (input, offset) => one(/,/, input, offset)
 
-      expect(many(element, separator, source, 0)).to.eql([false])
+      expect(list(element, separator, source, 0)).to.eql([false])
     })
   })
 })

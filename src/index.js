@@ -1,3 +1,6 @@
+
+const log = a => require('util').inspect(a, true, 100, true)
+
 function curry (fn) {
   const seed = (...currentArgs) => {
     if (currentArgs.length >= fn.length) {
@@ -31,48 +34,43 @@ function compose (...list) {
   }
 }
 
-function many (element, separator, input, offset) {
-  let e = element(input, offset)
-  if (e[0]) {
-    const f = e
-    let l = e
-    let s
+function list (element, separator, input, offset) {
+  const elems = []
+  let elem = element(input, offset)
+  if (elem[0]) {
+    const first = elem
+    let last = elem
+    let sep
+    elems.push(first)
     do {
-      s = separator(input, l[2])
-      if (s[0]) {
-        e = element(input, s[2])
-        if (e[0]) { l = e }
+      sep = separator(input, last[2])
+      if (sep[0]) {
+        elem = element(input, sep[2])
+        if (elem[0]) {
+          last = elem
+          elems.push(last)
+        }
       }
-    } while (s[0] && e[0])
-    return [true, f[1], l[2]]
+    } while (sep[0] && elem[0])
+    return [true, first[1], last[2], elems]
   }
   return [false]
 }
 
-function regex (regex, input, offset) {
-  const i = offset
-  let j = offset
-  const k = regex.lastIndex
-  while (regex.test(input[j])) {
-    j++
-    regex.lastIndex = k // restore the last index for global expressions
-  }
-  return j > i ? [true, i, j] : [false]
-}
-
-function text (value, input, offset) {
-  let i = offset
-  let j = 0
-  while (input[i] && input[i] === value[j]) {
-    i++
-    j++
-  }
-  return j === value.length ? [true, offset, i] : [false]
+function one (regex, input, offset) {
+  const $regex = new RegExp(
+    regex.source,
+    /[yg]/.test(regex.flags) ? regex.flags : `g${regex.flags}`
+  )
+  $regex.lastIndex = offset
+  const match = $regex.exec(input)
+  return match !== null
+    ? [true, match.index, match.index + match[0].length, match.slice(0)]
+    : [false]
 }
 
 module.exports = {
   compose,
-  many: curry(many),
-  regex: curry(regex),
-  text: curry(text)
+  list: curry(list),
+  one: curry(one)
 }
