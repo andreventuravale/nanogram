@@ -2,7 +2,7 @@
   "name": "nanogram",
   "version": "0.0.1",
   "description": "A parsing library with nothing special.",
-  "main": "index.js",
+  "main": "src/index.js",
   "scripts": {
     "test:dev": "mocha -ui tdd --recursive --watch test"
   },
