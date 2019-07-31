@@ -3,14 +3,15 @@ const { expect } = require('chai')
 const { compose, token } = require('../src')
 
 suite('compose', () => {
-  test('proof of concept', () => {
-    const number = token(/\d+/)
+  test('true - happy case', () => {
+    const number = token('num', /\d+/)
 
     const expr = compose(
+      'calc',
       number,
-      token(/\+/),
+      token('op', /\+/),
       number,
-      token(/=/),
+      token('op', /=/),
       number
     )
 
@@ -20,68 +21,69 @@ suite('compose', () => {
       true,
       0,
       8,
+      'calc',
       [
-        [true, 0, 1, ['1']],
-        [true, 1, 2, ['+']],
-        [true, 2, 4, ['22']],
-        [true, 4, 5, ['=']],
-        [true, 5, 8, ['333']]
+        [true, 0, 1, 'num', ['1']],
+        [true, 1, 2, 'op', ['+']],
+        [true, 2, 4, 'num', ['22']],
+        [true, 4, 5, 'op', ['=']],
+        [true, 5, 8, 'num', ['333']]
       ]
     ])
   })
 
-  test('true - happy case', () => {
-    const number = token(/\d/)
+  test('false - incomplete', () => {
+    const digit = token('digit', /\d/)
+    const letter = token('letter', /[a-z]/i)
 
     const expr = compose(
-      number(),
-      token(/\+/),
-      number(),
-      token(/=/),
-      number()
+      'expr',
+      digit,
+      letter,
+      digit
     )
 
-    const result = expr('1+2=3', 0)
+    const result = expr('123', 0)
 
-    expect(result).to.eql([
-      true,
-      0,
-      5,
+    expect(result).to.eql(
       [
-        [true, 0, 1, ['1']],
-        [true, 1, 2, ['+']],
-        [true, 2, 3, ['2']],
-        [true, 3, 4, ['=']],
-        [true, 4, 5, ['3']]
+        false,
+        0,
+        1,
+        'expr',
+        [
+          [true, 0, 1, 'digit', ['1']]
+        ]
       ]
-    ])
+    )
   })
 
   test('false - empty composition', () => {
-    const expr = compose()
+    const expr = compose('foo')
 
-    const result = expr('1', 0)
+    const result = expr('1', 1)
 
-    expect(result).to.eql([false])
+    expect(result).to.eql([false, 1, 1, 'foo', []])
   })
 
   test('false - empty input', () => {
-    const number = token(/\d/)
+    const number = token('digit', /\d/)
 
     const expr = compose(
+      'expr',
       number()
     )
 
-    const result = expr('', 0)
+    const result = expr('', 1)
 
-    expect(result).to.eql([false])
+    expect(result).to.eql([false, 1, 1, 'expr', []])
   })
 
   test('false - empth composition with empty input', () => {
-    const expr = compose()
+    const expr = compose('expr')
 
-    const result = expr('', 0)
+    const result = expr('', 1)
 
-    expect(result).to.eql([false])
+    expect(result).to.eql([false, 1, 1, 'expr', []])
   })
 })

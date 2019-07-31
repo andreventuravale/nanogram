@@ -1,4 +1,4 @@
-module.exports = function (element, separator, input, offset) {
+module.exports = function (type, element, separator, input, offset) {
   const elems = []
   let elem = element(input, offset)
 
@@ -22,8 +22,8 @@ module.exports = function (element, separator, input, offset) {
       }
     } while (sep[0] && elem[0])
 
-    return [true, first[1], last[2], elems]
+    return [true, first[1], last[2], type, elems]
   }
 
-  return [false]
+  return [false, offset, offset, type, []]
 }

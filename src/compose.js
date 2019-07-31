@@ -1,18 +1,28 @@
-module.exports = function (...list) {
+module.exports = function (type, ...list) {
+  if (list.length === 0) {
+    return (input, offset) => ([false, offset, offset, type, []])
+  }
+
   return (input, offset) => {
     let i = offset
-    let result
+    let result = [true]
     const results = []
-    for (let index = 0; index < list.length; index++) {
+
+    for (let index = 0; result[0] && index < list.length; index++) {
       const element = list[index]
+
       result = element(input, i)
-      i = result[2]
-      results.push(result)
+
+      if (result[0]) {
+        i = result[2]
+        results.push(result)
+      }
     }
+
     if (result && result[0]) {
-      return [true, offset, i, results]
+      return [true, offset, i, type, results]
     } else {
-      return [false]
+      return [false, offset, i, type, results]
     }
   }
 }
