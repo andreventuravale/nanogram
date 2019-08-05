@@ -1,4 +1,6 @@
-const { expect } = require('chai')
+const chai = require('chai')
+chai.use(require('chai-subset'))
+const { expect } = chai
 
 const { compose, token } = require('../src')
 
@@ -6,8 +8,7 @@ suite('compose', () => {
   test('true - happy case', () => {
     const number = token('num', /\d+/)
 
-    const expr = compose(
-      'calc',
+    const expr = compose('calc',
       number,
       token('op', /\+/),
       number,
@@ -17,26 +18,27 @@ suite('compose', () => {
 
     const result = expr('1+22=333', 0)
 
-    expect(result).to.eql([
-      true,
-      0,
-      8,
-      'calc',
-      [
-        [true, 0, 1, 'num', ['1']],
-        [true, 1, 2, 'op', ['+']],
-        [true, 2, 4, 'num', ['22']],
-        [true, 4, 5, 'op', ['=']],
-        [true, 5, 8, 'num', ['333']]
-      ]
-    ])
+    expect(result).to.containSubset(
+      {
+        found: true,
+        from: 0,
+        to: 8,
+        type: 'calc',
+        data: [
+          { found: true, from: 0, to: 1, type: 'num', data: ['1'] },
+          { found: true, from: 1, to: 2, type: 'op', data: ['+'] },
+          { found: true, from: 2, to: 4, type: 'num', data: ['22'] },
+          { found: true, from: 4, to: 5, type: 'op', data: ['='] },
+          { found: true, from: 5, to: 8, type: 'num', data: ['333'] }
+        ]
+      }
+    )
   })
 
   test('true - keyed results', () => {
-    const number = token('num', /\d+/)
+    const number = token(Symbol.for('num'), /\d+/)
 
-    const expr = compose(
-      'calc',
+    const expr = compose('calc',
       number,
       token('plus', /\+/),
       number,
@@ -46,18 +48,18 @@ suite('compose', () => {
 
     const result = expr('1+22=333', 0)
 
-    expect(result.num).to.eql([
-      [true, 0, 1, 'num', ['1']],
-      [true, 2, 4, 'num', ['22']],
-      [true, 5, 8, 'num', ['333']]
+    expect(result[Symbol.for('num')]).to.eql([
+      { found: true, from: 0, to: 1, type: Symbol.for('num'), data: ['1'] },
+      { found: true, from: 2, to: 4, type: Symbol.for('num'), data: ['22'] },
+      { found: true, from: 5, to: 8, type: Symbol.for('num'), data: ['333'] }
     ])
 
-    expect(result.plus).to.eql([
-      [true, 1, 2, 'plus', ['+']]
+    expect(result['plus']).to.eql([
+      { found: true, from: 1, to: 2, type: 'plus', data: ['+'] }
     ])
 
-    expect(result.equals).to.eql([
-      [true, 4, 5, 'equals', ['=']]
+    expect(result['equals']).to.eql([
+      { found: true, from: 4, to: 5, type: 'equals', data: ['='] }
     ])
   })
 
@@ -65,8 +67,7 @@ suite('compose', () => {
     const digit = token('digit', /\d/)
     const letter = token('letter', /[a-z]/i)
 
-    const expr = compose(
-      'expr',
+    const expr = compose('expr',
       digit,
       letter,
       digit
@@ -74,16 +75,16 @@ suite('compose', () => {
 
     const result = expr('123', 0)
 
-    expect(result).to.eql(
-      [
-        false,
-        0,
-        1,
-        'expr',
-        [
-          [true, 0, 1, 'digit', ['1']]
+    expect(result).to.containSubset(
+      {
+        found: false,
+        from: 0,
+        to: 1,
+        type: 'expr',
+        data: [
+          { found: true, from: 0, to: 1, type: 'digit', data: ['1'] }
         ]
-      ]
+      }
     )
   })
 
@@ -92,20 +93,35 @@ suite('compose', () => {
 
     const result = expr('1', 1)
 
-    expect(result).to.eql([false, 1, 1, 'foo', []])
+    expect(result).to.eql(
+      {
+        found: false,
+        from: 1,
+        to: 1,
+        type: 'foo',
+        data: []
+      }
+    )
   })
 
   test('false - empty input', () => {
     const number = token('digit', /\d/)
 
-    const expr = compose(
-      'expr',
+    const expr = compose('expr',
       number()
     )
 
     const result = expr('', 1)
 
-    expect(result).to.eql([false, 1, 1, 'expr', []])
+    expect(result).to.eql(
+      {
+        found: false,
+        from: 1,
+        to: 1,
+        type: 'expr',
+        data: []
+      }
+    )
   })
 
   test('false - empth composition with empty input', () => {
@@ -113,6 +129,14 @@ suite('compose', () => {
 
     const result = expr('', 1)
 
-    expect(result).to.eql([false, 1, 1, 'expr', []])
+    expect(result).to.eql(
+      {
+        found: false,
+        from: 1,
+        to: 1,
+        type: 'expr',
+        data: []
+      }
+    )
   })
 })

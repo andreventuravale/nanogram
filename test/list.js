@@ -11,17 +11,17 @@ suite('list', () => {
     const separator = (input, offset) => token('sep', /,/, input, offset)
 
     expect(list('list', element, separator, source, 0)).to.eql(
-      [
-        true,
-        0,
-        5,
-        'list',
-        [
-          [true, 0, 1, 'elem', ['1']],
-          [true, 2, 3, 'elem', ['2']],
-          [true, 4, 5, 'elem', ['3']]
+      {
+        found: true,
+        from: 0,
+        to: 5,
+        type: 'list',
+        data: [
+          { found: true, from: 0, to: 1, type: 'elem', data: ['1'] },
+          { found: true, from: 2, to: 3, type: 'elem', data: ['2'] },
+          { found: true, from: 4, to: 5, type: 'elem', data: ['3'] }
         ]
-      ]
+      }
     )
   })
 
@@ -32,7 +32,17 @@ suite('list', () => {
 
     const separator = (input, offset) => token('sep', /,/, input, offset)
 
-    expect(list('list', element, separator, source, 0)).to.eql([true, 0, 1, 'list', [[true, 0, 1, 'elem', ['1']]]])
+    expect(list('list', element, separator, source, 0)).to.eql(
+      {
+        found: true,
+        from: 0,
+        to: 1,
+        type: 'list',
+        data: [
+          { found: true, from: 0, to: 1, type: 'elem', data: ['1'] }
+        ]
+      }
+    )
   })
 
   test('true - ignores the last separator with no subsequent element', () => {
@@ -43,16 +53,16 @@ suite('list', () => {
     const separator = (input, offset) => token('sep', /,/, input, offset)
 
     expect(list('list', element, separator, source, 0)).to.eql(
-      [
-        true,
-        0,
-        3,
-        'list',
-        [
-          [true, 0, 1, 'elem', ['1']],
-          [true, 2, 3, 'elem', ['2']]
+      {
+        found: true,
+        from: 0,
+        to: 3,
+        type: 'list',
+        data: [
+          { found: true, from: 0, to: 1, type: 'elem', data: ['1'] },
+          { found: true, from: 2, to: 3, type: 'elem', data: ['2'] }
         ]
-      ]
+      }
     )
   })
 
@@ -63,6 +73,14 @@ suite('list', () => {
 
     const separator = (input, offset) => token('sep', /,/, input, offset)
 
-    expect(list('list', element, separator, source, 0)).to.eql([false, 0, 0, 'list', []])
+    expect(list('list', element, separator, source, 0)).to.eql(
+      {
+        found: false,
+        from: 0,
+        to: 0,
+        type: 'list',
+        data: []
+      }
+    )
   })
 })

@@ -2,7 +2,7 @@ module.exports = function (type, element, separator, input, offset) {
   const elems = []
   let elem = element(input, offset)
 
-  if (elem[0]) {
+  if (elem.found) {
     const first = elem
     let last = elem
     let sep
@@ -10,20 +10,20 @@ module.exports = function (type, element, separator, input, offset) {
     elems.push(first)
 
     do {
-      sep = separator(input, last[2])
+      sep = separator(input, last.to)
 
-      if (sep[0]) {
-        elem = element(input, sep[2])
+      if (sep.found) {
+        elem = element(input, sep.to)
 
-        if (elem[0]) {
+        if (elem.found) {
           last = elem
           elems.push(last)
         }
       }
-    } while (sep[0] && elem[0])
+    } while (sep.found && elem.found)
 
-    return [true, first[1], last[2], type, elems]
+    return { found: true, from: first.from, to: last.to, type, data: elems }
   }
 
-  return [false, offset, offset, type, []]
+  return { found: false, from: offset, to: offset, type, data: [] }
 }

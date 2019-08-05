@@ -1,32 +1,44 @@
 module.exports = function (type, ...list) {
   if (list.length === 0) {
-    return (input, offset) => ([false, offset, offset, type, []])
+    return (input, offset) => ({
+      found: false,
+      from: offset,
+      to: offset,
+      type,
+      data: []
+    })
   }
 
   return (input, offset) => {
     let i = offset
-    let currentResult = [true]
+    let currentResult = { found: true }
     const composedData = []
-    const composedResults = [true, offset, i, type, composedData]
+    const composedResults = {
+      found: true,
+      from: offset,
+      to: i,
+      type,
+      data: composedData
+    }
 
-    for (let index = 0; currentResult[0] && index < list.length; index++) {
+    for (let index = 0; currentResult.found && index < list.length; index++) {
       const element = list[index]
 
       currentResult = element(input, i)
 
-      if (currentResult[0]) {
-        i = currentResult[2]
+      if (currentResult.found) {
+        i = currentResult.to
         composedData.push(currentResult)
 
-        const currentId = currentResult[3]
-        composedResults[currentId] = composedResults[currentId] || []
-        composedResults[currentId].push(currentResult)
+        const currentType = currentResult.type
+        composedResults[currentType] = composedResults[currentType] || []
+        composedResults[currentType].push(currentResult)
       }
     }
 
-    composedResults[0] = !!(currentResult && currentResult[0])
-    composedResults[1] = offset
-    composedResults[2] = i
+    composedResults.found = !!(currentResult && currentResult.found)
+    composedResults.from = offset
+    composedResults.to = i
 
     return composedResults
   }

@@ -9,6 +9,6 @@ module.exports = function (type, regex, input, offset) {
   const match = $regex.exec(input)
 
   return match !== null
-    ? [true, match.index, match.index + match[0].length, type, match.slice(0)]
-    : [false, offset, offset, type, []]
+    ? { found: true, from: match.index, to: match.index + match[0].length, type, data: match.slice(0) }
+    : { found: false, from: offset, to: offset, type, data: [] }
 }

@@ -11,15 +11,15 @@ suite('token', () => {
     })
 
     test('the resulting start offset is the same as the input', function () {
-      expect(this.result[1]).to.eql(1)
+      expect(this.result.from).to.eql(1)
     })
 
     test('the resulting end offset is the same as the input', function () {
-      expect(this.result[2]).to.eql(1)
+      expect(this.result.to).to.eql(1)
     })
 
     test('the resulting data is an empty array', function () {
-      expect(this.result[4]).to.eql([])
+      expect(this.result.data).to.eql([])
     })
   })
 
@@ -28,7 +28,13 @@ suite('token', () => {
 
     const result = token('num', /\d+/, source, 0)
 
-    expect(result).to.eql([true, 0, 3, 'num', ['123']])
+    expect(result).to.eql({
+      found: true,
+      from: 0,
+      to: 3,
+      type: 'num',
+      data: ['123']
+    })
   })
 
   test('stateless regex with offset', () => {
@@ -36,7 +42,13 @@ suite('token', () => {
 
     const result = token('num', /\d+/, source, 1)
 
-    expect(result).to.eql([true, 1, 3, 'num', ['23']])
+    expect(result).to.eql({
+      found: true,
+      from: 1,
+      to: 3,
+      type: 'num',
+      data: ['23']
+    })
   })
 
   test('global regex', () => {
@@ -44,7 +56,13 @@ suite('token', () => {
 
     const result = token('num', /\d+/g, source, 2)
 
-    expect(result).to.eql([true, 2, 4, 'num', ['22']])
+    expect(result).to.eql({
+      found: true,
+      from: 2,
+      to: 4,
+      type: 'num',
+      data: ['22']
+    })
   })
 
   test('sticky regex', () => {
@@ -52,7 +70,13 @@ suite('token', () => {
 
     const result = token('num', /\d+/y, source, 2)
 
-    expect(result).to.eql([true, 2, 4, 'num', ['22']])
+    expect(result).to.eql({
+      found: true,
+      from: 2,
+      to: 4,
+      type: 'num',
+      data: ['22']
+    })
   })
 
   test('captures', () => {
@@ -60,7 +84,13 @@ suite('token', () => {
 
     const result = token('num', /(\d+)(.\d+)/y, source, 0)
 
-    expect(result).to.eql([true, 0, 4, 'num', ['3.14', '3', '.14']])
+    expect(result).to.eql({
+      found: true,
+      from: 0,
+      to: 4,
+      type: 'num',
+      data: ['3.14', '3', '.14']
+    })
   })
 
   suite('curry', () => {
