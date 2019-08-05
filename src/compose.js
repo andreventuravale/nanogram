@@ -5,24 +5,29 @@ module.exports = function (type, ...list) {
 
   return (input, offset) => {
     let i = offset
-    let result = [true]
-    const results = []
+    let currentResult = [true]
+    const composedData = []
+    const composedResults = [true, offset, i, type, composedData]
 
-    for (let index = 0; result[0] && index < list.length; index++) {
+    for (let index = 0; currentResult[0] && index < list.length; index++) {
       const element = list[index]
 
-      result = element(input, i)
+      currentResult = element(input, i)
 
-      if (result[0]) {
-        i = result[2]
-        results.push(result)
+      if (currentResult[0]) {
+        i = currentResult[2]
+        composedData.push(currentResult)
+
+        const currentId = currentResult[3]
+        composedResults[currentId] = composedResults[currentId] || []
+        composedResults[currentId].push(currentResult)
       }
     }
 
-    if (result && result[0]) {
-      return [true, offset, i, type, results]
-    } else {
-      return [false, offset, i, type, results]
-    }
+    composedResults[0] = !!(currentResult && currentResult[0])
+    composedResults[1] = offset
+    composedResults[2] = i
+
+    return composedResults
   }
 }

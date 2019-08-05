@@ -32,6 +32,35 @@ suite('compose', () => {
     ])
   })
 
+  test('true - keyed results', () => {
+    const number = token('num', /\d+/)
+
+    const expr = compose(
+      'calc',
+      number,
+      token('plus', /\+/),
+      number,
+      token('equals', /=/),
+      number
+    )
+
+    const result = expr('1+22=333', 0)
+
+    expect(result.num).to.eql([
+      [true, 0, 1, 'num', ['1']],
+      [true, 2, 4, 'num', ['22']],
+      [true, 5, 8, 'num', ['333']]
+    ])
+
+    expect(result.plus).to.eql([
+      [true, 1, 2, 'plus', ['+']]
+    ])
+
+    expect(result.equals).to.eql([
+      [true, 4, 5, 'equals', ['=']]
+    ])
+  })
+
   test('false - incomplete', () => {
     const digit = token('digit', /\d/)
     const letter = token('letter', /[a-z]/i)
