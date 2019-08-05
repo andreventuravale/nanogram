@@ -1,0 +1,1 @@
+[![Build Status](https://travis-ci.org/andreventuravale/nanogram.svg?branch=master)](https://travis-ci.org/andreventuravale/nanogram) [![Coverage Status](https://coveralls.io/repos/github/andreventuravale/nanogram/badge.svg)](https://coveralls.io/github/andreventuravale/nanogram)
