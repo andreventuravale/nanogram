@@ -17,8 +17,9 @@
   },
   "standard": {
     "globals": [
-      "test",
-      "suite"
+      "setup",
+      "suite",
+      "test"
     ]
   },
   "keywords": [

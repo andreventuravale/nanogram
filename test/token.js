@@ -5,6 +5,24 @@ const { token } = require('../src')
 suite('token', () => {
   // test pure function
 
+  suite('given a falsy result', () => {
+    setup(function () {
+      this.result = token('space', /\s+/, 'foo', 1)
+    })
+
+    test('the resulting start offset is the same as the input', function () {
+      expect(this.result[1]).to.eql(1)
+    })
+
+    test('the resulting end offset is the same as the input', function () {
+      expect(this.result[2]).to.eql(1)
+    })
+
+    test('the resulting data is an empty array', function () {
+      expect(this.result[4]).to.eql([])
+    })
+  })
+
   test('stateless regex', () => {
     const source = '123'
 
