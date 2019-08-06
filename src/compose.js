@@ -30,9 +30,11 @@ module.exports = function (type, ...list) {
         i = currentResult.to
         composedData.push(currentResult)
 
-        const currentType = currentResult.type
-        composedResults[currentType] = composedResults[currentType] || []
-        composedResults[currentType].push(currentResult)
+        if (typeof currentResult.type === 'symbol') {
+          const currentType = currentResult.type
+          composedResults[currentType] = composedResults[currentType] || []
+          composedResults[currentType].push(currentResult)
+        }
       }
     }
 

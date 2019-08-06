@@ -35,7 +35,7 @@ suite('compose', () => {
     )
   })
 
-  test('true - keyed results', () => {
+  test('true - keyed results - only the ones where the type are symbols', () => {
     const number = token(Symbol.for('num'), /\d+/)
 
     const expr = compose('calc',
@@ -54,13 +54,9 @@ suite('compose', () => {
       { found: true, from: 5, to: 8, type: Symbol.for('num'), data: ['333'] }
     ])
 
-    expect(result['plus']).to.eql([
-      { found: true, from: 1, to: 2, type: 'plus', data: ['+'] }
-    ])
+    expect(result['plus']).to.eql(undefined)
 
-    expect(result['equals']).to.eql([
-      { found: true, from: 4, to: 5, type: 'equals', data: ['='] }
-    ])
+    expect(result['equals']).to.eql(undefined)
   })
 
   test('false - incomplete', () => {
