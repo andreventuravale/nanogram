@@ -35,7 +35,7 @@ suite('compose', () => {
     )
   })
 
-  test('true - keyed results - only the ones where the type are symbols', () => {
+  test('elements named with symbols are also key accessible by key indexing', () => {
     const number = token(Symbol.for('num'), /\d+/)
 
     const expr = compose('calc',
