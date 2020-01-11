@@ -25,6 +25,36 @@ suite('list', () => {
     )
   })
 
+  test('elements named with symbols are also key accessible by key indexing', () => {
+    const source = '1,2,3'
+
+    const element = (input, offset) => token(Symbol.for('elem'), /\d/, input, offset)
+
+    const separator = (input, offset) => token('sep', /,/, input, offset)
+
+    const result = list('list', element, separator, source, 0)
+
+    expect(result).to.eql(
+      {
+        found: true,
+        from: 0,
+        to: 5,
+        type: 'list',
+        data: [
+          { found: true, from: 0, to: 1, type: Symbol.for('elem'), data: ['1'] },
+          { found: true, from: 2, to: 3, type: Symbol.for('elem'), data: ['2'] },
+          { found: true, from: 4, to: 5, type: Symbol.for('elem'), data: ['3'] }
+        ]
+      }
+    )
+
+    expect(result[Symbol.for('elem')]).to.eql([
+      { found: true, from: 0, to: 1, type: Symbol.for('elem'), data: ['1'] },
+      { found: true, from: 2, to: 3, type: Symbol.for('elem'), data: ['2'] },
+      { found: true, from: 4, to: 5, type: Symbol.for('elem'), data: ['3'] }
+    ])
+  })
+
   test('true - single element', () => {
     const source = '1'
 

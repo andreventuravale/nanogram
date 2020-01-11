@@ -22,7 +22,13 @@ module.exports = function (type, element, separator, input, offset) {
       }
     } while (sep.found && elem.found)
 
-    return { found: true, from: first.from, to: last.to, type, data: elems }
+    const result = { found: true, from: first.from, to: last.to, type, data: elems }
+
+    if (typeof elem.type === 'symbol') {
+      result[elem.type] = elems
+    }
+
+    return result
   }
 
   return { found: false, from: offset, to: offset, type, data: [] }
