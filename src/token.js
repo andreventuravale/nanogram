@@ -1,14 +1,23 @@
-module.exports = function (type, regex, input, offset) {
-  const $regex = new RegExp(
-    regex.source,
-    /[yg]/.test(regex.flags) ? regex.flags : `g${regex.flags}`
-  )
+const curry = require('./curry')
 
-  $regex.lastIndex = offset
+module.exports = curry(
+  function (type, regex) {
+    const $regex = new RegExp(
+      regex.source,
+      /[yg]/.test(regex.flags) ? regex.flags : `g${regex.flags}`
+    )
 
-  const match = $regex.exec(input)
+    return (transform = (...results) => results) =>
+      curry(
+        (input, offset) => {
+          $regex.lastIndex = offset
 
-  return match !== null
-    ? { found: true, from: match.index, to: match.index + match[0].length, type, data: match.slice(0) }
-    : { found: false, from: offset, to: offset, type, data: [] }
-}
+          const match = $regex.exec(input)
+
+          return match !== null
+            ? transform(match.reduce((data, val, i) => { data[`$${i}`] = val; return data }, {}), { found: true, from: match.index, to: match.index + match[0].length, type })
+            : transform({}, { found: false, from: offset, to: offset, type })
+        }
+      )
+  }
+)

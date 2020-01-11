@@ -2,19 +2,20 @@ const chai = require('chai')
 chai.use(require('chai-subset'))
 const { expect } = chai
 
-const { compose, token } = require('../src')
+const compose = require('../src/compose')
+const token = require('../src/token')
 
 suite('compose', () => {
   test('true - happy case', () => {
-    const number = token('num', /\d+/)
+    const number = token('num', /\d+/)()
 
-    const expr = compose('calc',
+    const expr = compose('expr',
       number,
-      token('op', /\+/),
+      token('op', /\+/)(),
       number,
-      token('op', /=/),
+      token('op', /=/)(),
       number
-    )
+    )()
 
     const result = expr('1+22=333', 0)
 
@@ -23,7 +24,7 @@ suite('compose', () => {
         found: true,
         from: 0,
         to: 8,
-        type: 'calc',
+        type: 'expr',
         data: [
           { found: true, from: 0, to: 1, type: 'num', data: ['1'] },
           { found: true, from: 1, to: 2, type: 'op', data: ['+'] },
@@ -36,15 +37,15 @@ suite('compose', () => {
   })
 
   test('elements named with symbols are also key accessible by key indexing', () => {
-    const number = token(Symbol.for('num'), /\d+/)
+    const number = token(Symbol.for('num'), /\d+/)()
 
-    const expr = compose('calc',
+    const expr = compose('expr',
       number,
-      token('plus', /\+/),
+      token('plus', /\+/)(),
       number,
-      token('equals', /=/),
+      token('equals', /=/)(),
       number
-    )
+    )()
 
     const result = expr('1+22=333', 0)
 
@@ -60,14 +61,14 @@ suite('compose', () => {
   })
 
   test('false - incomplete', () => {
-    const digit = token('digit', /\d/)
-    const letter = token('letter', /[a-z]/i)
+    const digit = token('digit', /\d/)()
+    const letter = token('letter', /[a-z]/i)()
 
     const expr = compose('expr',
       digit,
       letter,
       digit
-    )
+    )()
 
     const result = expr('123', 0)
 
@@ -85,7 +86,7 @@ suite('compose', () => {
   })
 
   test('false - empty composition', () => {
-    const expr = compose('foo')
+    const expr = compose('foo')()
 
     const result = expr('1', 1)
 
@@ -101,11 +102,11 @@ suite('compose', () => {
   })
 
   test('false - empty input', () => {
-    const number = token('digit', /\d/)
+    const number = token('digit', /\d/)()
 
     const expr = compose('expr',
       number()
-    )
+    )()
 
     const result = expr('', 1)
 
@@ -121,7 +122,7 @@ suite('compose', () => {
   })
 
   test('false - empth composition with empty input', () => {
-    const expr = compose('expr')
+    const expr = compose('expr')()
 
     const result = expr('', 1)
 
@@ -134,5 +135,40 @@ suite('compose', () => {
         data: []
       }
     )
+  })
+
+  test('true - transform', () => {
+    const number = token('num', /\d+/)(num => Number(num))
+
+    const parse = compose('sum',
+      number,
+      token('op', /\+/)(),
+      number
+    )
+
+    const sum = parse(
+    )
+
+    const result = sum('1+2', 0)
+
+    console.log(JSON.stringify(result))
+
+    expect(result).to.eql(3)
+  })
+
+  test('false - transform', () => {
+    const number = token('num', /\d+/)()
+
+    const parse = compose('sum',
+      number,
+      token('op', /\+/)(),
+      number
+    )
+
+    const sum = parse(() => NaN)
+
+    const result = sum('1-2', 0)
+
+    expect(result).to.eql(NaN)
   })
 })

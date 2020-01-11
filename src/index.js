@@ -7,8 +7,8 @@ const choose = require('./choose')
 
 module.exports = {
   choose,
-  compose: curry(compose),
+  compose,
   list: curry(list),
   optional,
-  token: curry(token)
+  token
 }

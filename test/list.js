@@ -6,9 +6,9 @@ suite('list', () => {
   test('true - happy case', () => {
     const source = '1,2,3'
 
-    const element = (input, offset) => token('elem', /\d/, input, offset)
+    const element = (input, offset) => token('elem', /\d/, input, offset)()
 
-    const separator = (input, offset) => token('sep', /,/, input, offset)
+    const separator = (input, offset) => token('sep', /,/, input, offset)()
 
     expect(list('list', element, separator, source, 0)).to.eql(
       {
@@ -28,9 +28,9 @@ suite('list', () => {
   test('elements named with symbols are also key accessible by key indexing', () => {
     const source = '1,2,3'
 
-    const element = (input, offset) => token(Symbol.for('elem'), /\d/, input, offset)
+    const element = (input, offset) => token(Symbol.for('elem'), /\d/, input, offset)()
 
-    const separator = (input, offset) => token('sep', /,/, input, offset)
+    const separator = (input, offset) => token('sep', /,/, input, offset)()
 
     const result = list('list', element, separator, source, 0)
 
@@ -58,9 +58,9 @@ suite('list', () => {
   test('true - single element', () => {
     const source = '1'
 
-    const element = (input, offset) => token('elem', /\d/, input, offset)
+    const element = (input, offset) => token('elem', /\d/, input, offset)()
 
-    const separator = (input, offset) => token('sep', /,/, input, offset)
+    const separator = (input, offset) => token('sep', /,/, input, offset)()
 
     expect(list('list', element, separator, source, 0)).to.eql(
       {
@@ -78,9 +78,9 @@ suite('list', () => {
   test('true - ignores the last separator with no subsequent element', () => {
     const source = '1,2,'
 
-    const element = (input, offset) => token('elem', /\d/, input, offset)
+    const element = (input, offset) => token('elem', /\d/, input, offset)()
 
-    const separator = (input, offset) => token('sep', /,/, input, offset)
+    const separator = (input, offset) => token('sep', /,/, input, offset)()
 
     expect(list('list', element, separator, source, 0)).to.eql(
       {
@@ -99,9 +99,9 @@ suite('list', () => {
   test('false - empty input', () => {
     const source = ''
 
-    const element = (input, offset) => token('elem', /\d/, input, offset)
+    const element = (input, offset) => token('elem', /\d/, input, offset)()
 
-    const separator = (input, offset) => token('sep', /,/, input, offset)
+    const separator = (input, offset) => token('sep', /,/, input, offset)()
 
     expect(list('list', element, separator, source, 0)).to.eql(
       {
