@@ -136,9 +136,9 @@ suite.only('list', () => {
       const number = token('num', /\d/y)()
       const comma = token('comma', /,/y)()
 
-      const numberList = list('list', number, comma)(num => Number(num))
+      const typedNumberList = list('list', number, comma)(num => Number(num))
 
-      const result = numberList('1,2,3', 0)
+      const result = typedNumberList('1,2,3', 0)
 
       expect(result).to.eql({
         found: true,
