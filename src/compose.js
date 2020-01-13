@@ -39,9 +39,17 @@ module.exports = function (type, ...list) {
 
           if (currentInfo.found) {
             i = currentInfo.to
-            stat[currentInfo.type] = stat[currentInfo.type] || { count: -1 }
+            stat[currentInfo.type] = stat[currentInfo.type] || { count: 0 }
             stat[currentInfo.type].count++
-            composedData[`${currentInfo.type}${stat[currentInfo.type].count}`] = currentData
+            if (stat[currentInfo.type].count === 2) {
+              composedData[`${currentInfo.type}0`] = composedData[currentInfo.type]
+              delete composedData[currentInfo.type]
+              composedData[`${currentInfo.type}${stat[currentInfo.type].count - 1}`] = currentData
+            } else if (stat[currentInfo.type].count > 1) {
+              composedData[`${currentInfo.type}${stat[currentInfo.type].count - 1}`] = currentData
+            } else {
+              composedData[currentInfo.type] = currentData
+            }
 
             // if (typeof currentInfo.type === 'symbol') {
             //   const currentType = currentInfo.type

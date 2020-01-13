@@ -5,35 +5,87 @@ const { expect } = chai
 const compose = require('../src/compose')
 const token = require('../src/token')
 
-suite.skip('compose', () => {
-  test('true - happy case', () => {
-    const number = token('num', /\d+/)()
+suite.only('compose', () => {
+  suite('success cases', () => {
+    test.only('two occurrences on same item are indexed', () => {
+      const number = token('num', /\d+/y)()
 
-    const expr = compose('expr',
-      number,
-      token('op', /\+/)(),
-      number,
-      token('op', /=/)(),
-      number
-    )()
+      const expr = compose('expr',
+        number,
+        token('op', /\+/y)(),
+        number
+      )()
 
-    const result = expr('1+2=3', 0)
+      const result = expr('1+2', 0)
 
-    require('clipboardy').writeSync(JSON.stringify(result[0], 0, 2))
+      expect(result[0]).to.deep.eql({
+        num0: '1',
+        op: '+',
+        num1: '2'
+      })
 
-    expect(result[0]).to.deep.eql({
-      num0: { $0: '1' },
-      op0: { $0: '+' },
-      num1: { $0: '2' },
-      op1: { $0: '=' },
-      num2: { $0: '3' }
+      expect(result[1]).to.deep.eql({
+        found: true,
+        from: 0,
+        to: 3,
+        type: 'expr'
+      })
     })
 
-    expect(result[1]).to.deep.eql({
-      found: true,
-      from: 0,
-      to: 5,
-      type: 'expr'
+    test.only('more than two occurrences on same item are indexed', () => {
+      const number = token('num', /\d+/y)()
+
+      const expr = compose('expr',
+        number,
+        token('op', /\+/y)(),
+        number,
+        token('op', /=/y)(),
+        number
+      )()
+
+      const result = expr('1+2=3', 0)
+
+      expect(result[0]).to.deep.eql({
+        num0: '1',
+        op0: '+',
+        num1: '2',
+        op1: '=',
+        num2: '3'
+      })
+
+      expect(result[1]).to.deep.eql({
+        found: true,
+        from: 0,
+        to: 5,
+        type: 'expr'
+      })
+    })
+
+    test.only('single occurrence of an item is not indexed', () => {
+      const name = token('name', /\w+/y)()
+      const ws = token('ws', / +/y)()
+      const surname = token('surname', /\w+/y)()
+
+      const fullName = compose('fullName',
+        name,
+        ws,
+        surname
+      )()
+
+      const result = fullName('foo bar', 0)
+
+      expect(result[0]).to.deep.eql({
+        name: 'foo',
+        ws: ' ',
+        surname: 'bar'
+      })
+
+      expect(result[1]).to.deep.eql({
+        found: true,
+        from: 0,
+        to: 7,
+        type: 'fullName'
+      })
     })
   })
 

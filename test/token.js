@@ -2,7 +2,7 @@ const { expect } = require('chai')
 
 const { token } = require('../src')
 
-suite.only('token', () => {
+suite('token', () => {
   test('regex type checking', () => {
     expect(() => token('digit', '\\d+')()('1', 0)).to.throw(`The regex is not instance of RegExp.`)
   })
