@@ -28,6 +28,8 @@ module.exports = function (type, ...list) {
 
             currentResult = lastElement(input, i)
 
+            console.log(currentResult)
+
             if (currentResult.found) {
               i = currentResult.to
 

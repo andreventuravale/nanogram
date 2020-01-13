@@ -166,6 +166,40 @@ suite('compose', () => {
       })
     })
 
+    test('many successed ignorables at end', () => {
+      const name = token('name', /\w+/y)()
+      const space = token('space', / /y)()
+      const surname = list('surname', name, space)()
+
+      const fullName = compose('fullName',
+        name,
+        optional(space),
+        optional(surname)
+      )()
+
+      const result = fullName('foo bar', 0)
+
+      expect(result).to.deep.eql({
+        found: true,
+        from: 0,
+        to: 7,
+        type: 'fullName',
+        data: {
+          name: 'foo',
+          space: ' ',
+          surname: [
+            {
+              found: true,
+              from: 4,
+              to: 7,
+              type: 'name',
+              data: 'bar'
+            }
+          ]
+        }
+      })
+    })
+
     test('custom transformation', () => {
       const number = token('num', /\d+/y)(num => Number(num))
 
