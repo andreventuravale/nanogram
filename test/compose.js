@@ -7,7 +7,7 @@ const token = require('../src/token')
 
 suite('compose', () => {
   suite('success cases', () => {
-    test('two occurrences on same item are indexed', () => {
+    test.only('two occurrences on same item are indexed', () => {
       const number = token('num', /\d+/y)()
 
       const expr = compose('expr',
@@ -30,6 +30,8 @@ suite('compose', () => {
         }
       })
     })
+
+    // TODO: compose name equals type ( and curried intermediates )
 
     test('more than two occurrences on same item are indexed', () => {
       const number = token('num', /\d+/y)()
@@ -132,8 +134,6 @@ suite('compose', () => {
         '  2',
         '    3'
       ].join('\n'), 0)
-
-      require('clipboardy').writeSync(JSON.stringify(result, 0, 2))
 
       expect(result).to.eql({
         found: false,
