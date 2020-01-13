@@ -1,9 +1,8 @@
 const chai = require('chai')
-chai.use(require('chai-subset'))
-const { expect } = chai
-
 const compose = require('../src/compose')
 const token = require('../src/token')
+
+const { expect } = chai
 
 suite.only('compose', () => {
   suite('success cases', () => {
