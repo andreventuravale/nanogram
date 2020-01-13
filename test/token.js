@@ -7,11 +7,11 @@ suite.only('token', () => {
     expect(() => token('digit', '\\d+')()('1', 0)).to.throw(`The regex is not instance of RegExp.`)
   })
 
-  test(`regexes can't have the g flag`, () => {
+  test(`the regex can't have the g flag`, () => {
     expect(() => token('digit', /\d+/g)()('1', 0)).to.throw(`The regex g flag is not accepted.`)
   })
 
-  test('regexes should always be sticky ( have y flag )', () => {
+  test('the regex should always be sticky ( have y flag )', () => {
     expect(() => token('digit', /\d+/)()('1', 0)).to.throw(`The regex should always have the y flag ( sticky ).`)
   })
 
