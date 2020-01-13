@@ -2,8 +2,6 @@ const chai = require('chai')
 const choose = require('../src/choose')
 const token = require('../src/token')
 
-chai.use(require('chai-subset'))
-
 const { expect } = chai
 
 suite('choice', () => {
@@ -13,7 +11,7 @@ suite('choice', () => {
       token('orange', /orange/y)(),
       token('apple', /apple/y)(),
       token('watermelon', /watermelon/y)()
-    )
+    )()
 
     const result = choice('orange', 0)
 
@@ -22,25 +20,23 @@ suite('choice', () => {
       from: 0,
       to: 6,
       type: 'fruit',
-      data: [
-        {
-          found: true,
-          from: 0,
-          to: 6,
-          type: 'orange',
-          data: 'orange'
-        }
-      ]
+      data: {
+        found: true,
+        from: 0,
+        to: 6,
+        type: 'orange',
+        data: 'orange'
+      }
     })
   })
 
   test('fail case', () => {
     const choice = choose(
       'fruit',
-      token('orange', /orange/y),
-      token('apple', /apple/y),
-      token('watermelon', /watermelon/y)
-    )
+      token('orange', /orange/y)(),
+      token('apple', /apple/y)(),
+      token('watermelon', /watermelon/y)()
+    )()
 
     const result = choice('strawberry', 0)
 
@@ -49,7 +45,36 @@ suite('choice', () => {
       from: 0,
       to: 0,
       type: 'fruit',
-      data: []
+      data: {}
+    })
+  })
+
+  test('transformation on success and on fail', () => {
+    const choice = choose(
+      'fruit',
+      token('orange', /orange/y)(),
+      token('apple', /apple/y)(),
+      token('watermelon', /watermelon/y)()
+    )(({ data }, { found }) => found ? data : 'banana')
+
+    expect(
+      choice('orange', 0)
+    ).to.eql({
+      found: true,
+      from: 0,
+      to: 6,
+      type: 'fruit',
+      data: 'orange'
+    })
+
+    expect(
+      choice('strawberry', 0)
+    ).to.eql({
+      found: false,
+      from: 0,
+      to: 0,
+      type: 'fruit',
+      data: 'banana'
     })
   })
 })

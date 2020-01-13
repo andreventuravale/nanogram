@@ -1,5 +1,4 @@
 const chai = require('chai')
-chai.use(require('chai-subset'))
 const { expect } = chai
 
 const token = require('../src/token')

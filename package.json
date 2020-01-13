@@ -34,7 +34,6 @@
   "homepage": "https://github.com/andreventuravale/nanogram#readme",
   "devDependencies": {
     "chai": "^4.2.0",
-    "chai-subset": "^1.6.0",
     "clipboardy": "^2.1.0",
     "coveralls": "^3.0.4",
     "mocha": "^6.2.0",

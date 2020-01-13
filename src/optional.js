@@ -9,4 +9,6 @@ module.exports = function (something) {
 
     return result
   }
+  // TODO: make it curriable
+  // TODO: fail fast validations
 }
