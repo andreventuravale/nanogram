@@ -173,7 +173,7 @@ suite.only('list', () => {
   })
 
   suite('fail cases', () => {
-    test('partial matching should generate an error', () => {
+    test('partial matching should generate an error and be treated as not found', () => {
       const number = token('num', /\d/y)()
       const comma = token('comma', /,/y)()
 
