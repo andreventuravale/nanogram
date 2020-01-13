@@ -7,7 +7,7 @@ suite.only('token', () => {
     expect(() => token('digit', '\\d+')()('1', 0)).to.throw(`The regex is not instance of RegExp.`)
   })
 
-  test('only sticky regexes are accepted ( have y flag )', () => {
+  test(`regexes can't have the g flag`, () => {
     expect(() => token('digit', /\d+/g)()('1', 0)).to.throw(`The regex g flag is not accepted.`)
   })
 
