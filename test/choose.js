@@ -15,7 +15,7 @@ suite('choice', () => {
 
     const result = choice('orange', 0)
 
-    expect(result).to.eql({
+    expect(result).to.deep.eql({
       found: true,
       from: 0,
       to: 6,
@@ -40,7 +40,7 @@ suite('choice', () => {
 
     const result = choice('strawberry', 0)
 
-    expect(result).to.eql({
+    expect(result).to.deep.eql({
       found: false,
       from: 0,
       to: 0,
@@ -59,7 +59,7 @@ suite('choice', () => {
 
     expect(
       choice('orange', 0)
-    ).to.eql({
+    ).to.deep.eql({
       found: true,
       from: 0,
       to: 6,
@@ -69,7 +69,7 @@ suite('choice', () => {
 
     expect(
       choice('strawberry', 0)
-    ).to.eql({
+    ).to.deep.eql({
       found: false,
       from: 0,
       to: 0,

@@ -10,7 +10,7 @@ suite('optional', () => {
 
     expect(
       foo('foo', 0)
-    ).to.eql({
+    ).to.deep.eql({
       found: true,
       from: 0,
       to: 3,
@@ -20,7 +20,7 @@ suite('optional', () => {
 
     expect(
       foo('bar', 0)
-    ).to.eql({
+    ).to.deep.eql({
       found: false,
       from: 0,
       to: 0,
@@ -30,7 +30,7 @@ suite('optional', () => {
 
     expect(
       optional(foo)('bar', 0)
-    ).to.eql({
+    ).to.deep.eql({
       found: false,
       ignored: true,
       from: 0,
@@ -45,7 +45,7 @@ suite('optional', () => {
 
     expect(
       foo('foo', 0)
-    ).to.eql({
+    ).to.deep.eql({
       found: true,
       from: 0,
       to: 3,
@@ -55,7 +55,7 @@ suite('optional', () => {
 
     expect(
       optional(foo)('foo', 0)
-    ).to.eql({
+    ).to.deep.eql({
       found: true,
       from: 0,
       to: 3,

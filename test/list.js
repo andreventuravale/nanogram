@@ -12,7 +12,7 @@ suite('list', () => {
 
       const result = numberList('1,2,3', 0)
 
-      expect(result).to.eql({
+      expect(result).to.deep.eql({
         found: true,
         from: 0,
         to: 5,
@@ -51,7 +51,7 @@ suite('list', () => {
 
       const result = numberList('1,2', 0)
 
-      expect(result).to.eql({
+      expect(result).to.deep.eql({
         found: true,
         from: 0,
         to: 3,
@@ -83,7 +83,7 @@ suite('list', () => {
 
       const result = numberList('1', 0)
 
-      expect(result).to.eql({
+      expect(result).to.deep.eql({
         found: true,
         from: 0,
         to: 1,
@@ -108,7 +108,7 @@ suite('list', () => {
 
       const result = numberList('1,2,', 0)
 
-      expect(result).to.eql({
+      expect(result).to.deep.eql({
         found: true,
         from: 0,
         to: 3,
@@ -132,42 +132,47 @@ suite('list', () => {
       })
     })
 
-    test('custom transformation', () => {
+    test('custom transformation - mapping data', () => {
       const number = token('num', /\d/y)()
       const comma = token('comma', /,/y)()
 
-      const typedNumberList = list('list', number, comma)(num => Number(num))
+      const typedNumberList = list('list', number, comma)(
+        list => list.map(num => Number(num.data))
+      )
 
       const result = typedNumberList('1,2,3', 0)
 
-      expect(result).to.eql({
+      expect(result).to.deep.eql({
         found: true,
         from: 0,
         to: 5,
         type: 'list',
         data: [
-          {
-            found: true,
-            from: 0,
-            to: 1,
-            type: 'num',
-            data: 1
-          },
-          {
-            found: true,
-            from: 2,
-            to: 3,
-            type: 'num',
-            data: 2
-          },
-          {
-            found: true,
-            from: 4,
-            to: 5,
-            type: 'num',
-            data: 3
-          }
+          1,
+          2,
+          3
         ]
+      })
+    })
+
+    test('custom transformation - mapping data and reducing', () => {
+      const number = token('num', /\d/y)()
+      const comma = token('comma', /,/y)()
+
+      const typedNumberList = list('list', number, comma)(
+        list => list
+          .map(num => Number(num.data))
+          .reduce((sum, num) => sum + num, 0)
+      )
+
+      const result = typedNumberList('1,2,3', 0)
+
+      expect(result).to.deep.eql({
+        found: true,
+        from: 0,
+        to: 5,
+        type: 'list',
+        data: 6
       })
     })
   })
@@ -184,7 +189,7 @@ suite('list', () => {
         '  a'
       ].join('\n'), 3)
 
-      expect(result).to.eql({
+      expect(result).to.deep.eql({
         found: false,
         from: 3,
         to: 3,
@@ -208,7 +213,7 @@ suite('list', () => {
 
       const result = numberList('', 0)
 
-      expect(result).to.eql({
+      expect(result).to.deep.eql({
         found: false,
         from: 0,
         to: 0,
@@ -225,5 +230,16 @@ suite('list', () => {
     })
   })
 
-  // TODO: fail fast validation: type, element, sep
+  test('all intermediate functions version have the name equals to the type', () => {
+    const number = token('num', /\d/y)()
+    const comma = token('comma', /,/y)()
+
+    const untransformed = list('numberList', number, comma)
+
+    expect(untransformed.name).to.deep.eql('numberList')
+    expect(untransformed().name).to.deep.eql('numberList')
+    expect(untransformed(list => list.map(num => Number(num.data))).name).to.deep.eql('numberList')
+  })
+
+  // TODO: fail fast validation: type, element, sep, curriable
 })

@@ -9,7 +9,7 @@ suite('token', () => {
 
       const result = token('num', /\d+/y)()(source, 0)
 
-      expect(result).to.eql({
+      expect(result).to.deep.eql({
         found: true,
         from: 0,
         to: 5,
@@ -23,7 +23,7 @@ suite('token', () => {
 
       const result = token('num', /(\d+)(.)(\d+)/y)()(source, 0)
 
-      expect(result).to.eql({
+      expect(result).to.deep.eql({
         found: true,
         from: 0,
         to: 4,
@@ -42,13 +42,13 @@ suite('token', () => {
     test('passing a transform function to a success case', () => {
       const source = '3.14'
 
-      const untrasformed = token('num', /(\d+)(.)(\d+)/y)
+      const untransformed = token('num', /(\d+)(.)(\d+)/y)
 
-      const transformed = untrasformed(({ $1, $3 }) => `${$1},${$3}`)
+      const transformed = untransformed(({ $1, $3 }) => `${$1},${$3}`)
 
       const result = transformed(source, 0)
 
-      expect(result).to.eql({
+      expect(result).to.deep.eql({
         found: true,
         from: 0,
         to: 4,
@@ -64,7 +64,7 @@ suite('token', () => {
 
       const result = transformed('foo', 0)
 
-      expect(result).to.eql({
+      expect(result).to.deep.eql({
         found: false,
         from: 0,
         to: 0,
@@ -80,15 +80,15 @@ suite('token', () => {
     })
 
     test('the resulting start offset is the same as the input', function () {
-      expect(this.result.from).to.eql(1)
+      expect(this.result.from).to.deep.eql(1)
     })
 
     test('the resulting end offset is the same as the input', function () {
-      expect(this.result.to).to.eql(1)
+      expect(this.result.to).to.deep.eql(1)
     })
 
     test('the resulting data is an empty object hash', function () {
-      expect(this.result.data).to.eql({})
+      expect(this.result.data).to.deep.eql({})
     })
   })
 
@@ -97,27 +97,27 @@ suite('token', () => {
 
     const transformed = untransformed(({ $1, $3 }) => `${$1},${$3}`)
 
-    expect(untransformed.name).to.eql('num')
+    expect(untransformed.name).to.deep.eql('num')
 
-    expect(transformed.name).to.eql('num')
+    expect(transformed.name).to.deep.eql('num')
   })
 
   test('is curriable', () => {
     const untransformed = token('num', /\d/y)
 
-    expect(untransformed()('1', 0)).to.eql(
+    expect(untransformed()('1', 0)).to.deep.eql(
       { found: true, from: 0, to: 1, type: 'num', data: '1' }
     )
 
-    expect(untransformed()('1')(0)).to.eql(
+    expect(untransformed()('1')(0)).to.deep.eql(
       { found: true, from: 0, to: 1, type: 'num', data: '1' }
     )
 
-    expect(untransformed()()('1')(0)).to.eql(
+    expect(untransformed()()('1')(0)).to.deep.eql(
       { found: true, from: 0, to: 1, type: 'num', data: '1' }
     )
 
-    expect(untransformed()('1')()(0)).to.eql(
+    expect(untransformed()('1')()(0)).to.deep.eql(
       { found: true, from: 0, to: 1, type: 'num', data: '1' }
     )
   })

@@ -169,17 +169,17 @@ suite('compose', () => {
     test('custom transformation', () => {
       const number = token('num', /\d+/y)(num => Number(num))
 
-      const parse = compose('sum',
+      const untransformed = compose('sum',
         number,
         token('op', /\+/y)(),
         number
       )
 
-      const sum = parse(({ num0, num1 }) => num0 + num1)
+      const sum = untransformed(({ num0, num1 }) => num0 + num1)
 
       const result = sum('1+2', 0)
 
-      expect(result).to.eql({
+      expect(result).to.deep.eql({
         found: true,
         from: 0,
         to: 3,
@@ -192,21 +192,19 @@ suite('compose', () => {
       const number = token('num', /\d+/y)(num => Number(num))
       const ws = token('ws', / +/y)()
       const numberList = list('numList', number, ws)
-      const oddNumberList = numberList(num => num % 2 ? num : 0)
+      const oddNumberList = numberList(list => list.filter(num => num.data % 2))
 
-      const parse = compose('sum',
+      const sumOdds = compose('sumOdds',
         oddNumberList
-      )
+      )(({ numList }) => numList.reduce((sum, { data }) => sum + data, 0))
 
-      const sum = parse(({ numList }) => numList.reduce((sum, { data }) => sum + data, 0))
+      const result = sumOdds('1 2 3', 0)
 
-      const result = sum('1 2 3', 0)
-
-      expect(result).to.eql({
+      expect(result).to.deep.eql({
         found: true,
         from: 0,
         to: 5,
-        type: 'sum',
+        type: 'sumOdds',
         data: 4
       })
     })
@@ -237,7 +235,7 @@ suite('compose', () => {
         '    3'
       ].join('\n'), 0)
 
-      expect(result).to.eql({
+      expect(result).to.deep.eql({
         found: false,
         from: 0,
         to: 5,
@@ -266,7 +264,7 @@ suite('compose', () => {
 
       const result = expr('', 1)
 
-      expect(result).to.eql(
+      expect(result).to.deep.eql(
         {
           found: false,
           from: 1,
@@ -286,17 +284,17 @@ suite('compose', () => {
     test('custom transformation', () => {
       const number = token('num', /\d+/y)()
 
-      const parse = compose('sum',
+      const untransformed = compose('sum',
         number,
         token('op', /\+/y)(),
         number
       )
 
-      const sum = parse((data, { found }) => found ? 0 : NaN)
+      const sum = untransformed((data, { found }) => found ? 0 : NaN)
 
       const result = sum('1-2', 0)
 
-      expect(result).to.eql({
+      expect(result).to.deep.eql({
         found: false,
         from: 0,
         to: 1,
@@ -318,11 +316,11 @@ suite('compose', () => {
       token('num', /(\d+)/y)()
     )
 
-    expect(untransformed.name).to.eql('num')
+    expect(untransformed.name).to.deep.eql('num')
 
     const transformed = untransformed(({ num }) => num)
 
-    expect(transformed.name).to.eql('num')
+    expect(transformed.name).to.deep.eql('num')
   })
 
   test('is curriable', () => {

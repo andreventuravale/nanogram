@@ -10,16 +10,16 @@ suite('curry', () => {
 
     const sumXYCurried = curry(sumXY)
 
-    expect(sumXYCurried.name).to.eql('sumXY')
-    expect(sumXYCurried(1).name).to.eql('sumXY')
-    expect(sumXYCurried(1)(1).name).to.eql('sumXY')
-    expect(sumXYCurried(1)().name).to.eql('sumXY')
-    expect(sumXYCurried(1)(1).name).to.eql('sumXY')
+    expect(sumXYCurried.name).to.deep.eql('sumXY')
+    expect(sumXYCurried(1).name).to.deep.eql('sumXY')
+    expect(sumXYCurried(1)(1).name).to.deep.eql('sumXY')
+    expect(sumXYCurried(1)().name).to.deep.eql('sumXY')
+    expect(sumXYCurried(1)(1).name).to.deep.eql('sumXY')
   })
 
   test('(1, 2) = (1)(2)', function () {
     const sum = curry((x, y) => x + y)
-    expect(sum(1, 2)).to.eql(sum(1)(2))
+    expect(sum(1, 2)).to.deep.eql(sum(1)(2))
   })
 
   test('curring more times than the number of parameters throws an error', function () {
