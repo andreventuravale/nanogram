@@ -9,7 +9,7 @@ module.exports = curry(
       throw new Error(`The regex g flag is not accepted.`)
     }
     if (!/[y]/.test(regex.flags)) {
-      throw new Error(`The regex should always have the y flag ( sticky ).`)
+      throw new Error(`The regex must always have the y flag ( sticky ).`)
     }
 
     return ({

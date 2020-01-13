@@ -13,7 +13,7 @@ suite('token', () => {
     })
 
     test('the regex should always be sticky ( have y flag )', () => {
-      expect(() => token('digit', /\d+/)()('1', 0)).to.throw(`The regex should always have the y flag ( sticky ).`)
+      expect(() => token('digit', /\d+/)()('1', 0)).to.throw(`The regex must always have the y flag ( sticky ).`)
     })
   })
 
