@@ -1,5 +1,6 @@
 const chai = require('chai')
 const compose = require('../src/compose')
+const list = require('../src/list')
 const token = require('../src/token')
 
 const { expect } = chai
@@ -103,6 +104,31 @@ suite.only('compose', () => {
         to: 3,
         type: 'sum',
         data: 3
+      })
+    })
+
+    test('custom transformation', () => {
+      const number = token('num', /\d+/y)(num => Number(num))
+      const ws = token('ws', / +/y)()
+      const numberList = list('numList', number, ws)
+      const oddNumberList = numberList(num => num % 2 ? num : 0)
+
+      const parse = compose('sum',
+        oddNumberList
+      )
+
+      const sum = parse(({ numList }) => numList.reduce((sum, { data }) => sum + data, 0))
+
+      const result = sum('1 2 3', 0)
+
+      require('clipboardy').writeSync(JSON.stringify(result, 0, 2))
+
+      expect(result).to.eql({
+        found: true,
+        from: 0,
+        to: 5,
+        type: 'sum',
+        data: 4
       })
     })
   })
