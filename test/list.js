@@ -173,38 +173,54 @@ suite.only('list', () => {
   })
 
   suite('fail cases', () => {
-    test('empty input is considered not found', () => {
+    test('partial matching should generate an error', () => {
       const number = token('num', /\d/y)()
       const comma = token('comma', /,/y)()
 
       const numberList = list('list', number, comma)()
 
-      expect(
-        numberList('1', 0)
-      ).to.eql({
-        found: true,
-        from: 0,
-        to: 1,
+      const result = numberList([
+        '',
+        '  a'
+      ].join('\n'), 3)
+
+      expect(result).to.eql({
+        found: false,
+        from: 3,
+        to: 3,
         type: 'list',
-        data: [
+        data: [],
+        errors: [
           {
-            found: true,
-            from: 0,
-            to: 1,
-            type: 'num',
-            data: '1'
+            line: 2,
+            column: 3,
+            message: '2:3: expected element not found: "list > num"'
           }
         ]
       })
+    })
 
-      expect(
-        numberList('', 0)
-      ).to.eql({
+    test('empty input should generate an error', () => {
+      const number = token('num', /\d/y)()
+      const comma = token('comma', /,/y)()
+
+      const numberList = list('list', number, comma)()
+
+      const result = numberList('', 0)
+
+      expect(result).to.eql({
         found: false,
         from: 0,
         to: 0,
         type: 'list',
-        data: []
+        data: [],
+        errors: [
+          {
+            line: 1,
+            column: 1,
+            message: '1:1: expected element not found: "list > num"'
+          }
+        ]
       })
     })
   })

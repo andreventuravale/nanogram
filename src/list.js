@@ -29,6 +29,18 @@ module.exports = function (type, element, separator) {
         return { found: true, from: first.from, to: last.to, type, data: elems }
       }
 
-      return { found: false, from: offset, to: offset, type, data: [] }
+      const lines = input.slice(0, offset).split('\n')
+      const line = lines.length
+      const column = lines.pop().length + 1
+
+      const errors = [
+        {
+          line,
+          column,
+          message: `${line}:${column}: expected element not found: "${type} > ${element.name}"`
+        }
+      ]
+
+      return { found: false, from: offset, to: offset, type, data: [], errors }
     }
 }

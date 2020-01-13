@@ -4,7 +4,7 @@ const token = require('../src/token')
 
 const { expect } = chai
 
-suite('compose', () => {
+suite.only('compose', () => {
   suite('success cases', () => {
     test('two occurrences on same item are indexed', () => {
       const number = token('num', /\d+/y)()
