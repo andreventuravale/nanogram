@@ -39,8 +39,10 @@ module.exports = function (type, ...list) {
 
           if (currentInfo.found) {
             i = currentInfo.to
+
             stat[currentInfo.type] = stat[currentInfo.type] || { count: 0 }
             stat[currentInfo.type].count++
+
             if (stat[currentInfo.type].count === 2) {
               composedData[`${currentInfo.type}0`] = composedData[currentInfo.type]
               delete composedData[currentInfo.type]
@@ -50,12 +52,6 @@ module.exports = function (type, ...list) {
             } else {
               composedData[currentInfo.type] = currentData
             }
-
-            // if (typeof currentInfo.type === 'symbol') {
-            //   const currentType = currentInfo.type
-            //   composedData[currentType] = composedData[currentType] || []
-            //   composedData[currentType].push(currentResult)
-            // }
           }
         }
 

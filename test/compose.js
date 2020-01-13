@@ -89,28 +89,7 @@ suite.only('compose', () => {
     })
   })
 
-  test('elements named with symbols are also key accessible by key indexing', () => {
-    const number = token(Symbol.for('num'), /\d+/)()
-
-    const expr = compose('expr',
-      number,
-      token('plus', /\+/)(),
-      number,
-      token('equals', /=/)(),
-      number
-    )()
-
-    const result = expr('1+22=333', 0)
-
-    expect(result[Symbol.for('num')]).to.eql([
-      { found: true, from: 0, to: 1, type: Symbol.for('num'), data: ['1'] },
-      { found: true, from: 2, to: 4, type: Symbol.for('num'), data: ['22'] },
-      { found: true, from: 5, to: 8, type: Symbol.for('num'), data: ['333'] }
-    ])
-
-    expect(result['plus']).to.eql(undefined)
-
-    expect(result['equals']).to.eql(undefined)
+  suite('fail cases', () => {
   })
 
   test('false - incomplete', () => {
