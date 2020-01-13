@@ -323,33 +323,33 @@ suite('compose', () => {
     expect(transformed.name).to.deep.eql('num')
   })
 
-  test('is curriable', () => {
-    const untransformed = compose('num', token('num', /\d+/y)())
+  // test('is curriable', () => {
+  //   const untransformed = compose('num', token('num', /\d+/y)())
 
-    expect(
-      untransformed()('1', 0)
-    ).to.deep.eql(
-      { found: true, from: 0, to: 1, type: 'num', data: { num: '1' } }
-    )
+  //   expect(
+  //     untransformed()('1', 0)
+  //   ).to.deep.eql(
+  //     { found: true, from: 0, to: 1, type: 'num', data: { num: '1' } }
+  //   )
 
-    expect(
-      untransformed()('1')(0)
-    ).to.deep.eql(
-      { found: true, from: 0, to: 1, type: 'num', data: { num: '1' } }
-    )
+  //   expect(
+  //     untransformed()('1')(0)
+  //   ).to.deep.eql(
+  //     { found: true, from: 0, to: 1, type: 'num', data: { num: '1' } }
+  //   )
 
-    expect(
-      untransformed()()('1')(0)
-    ).to.deep.eql(
-      { found: true, from: 0, to: 1, type: 'num', data: { num: '1' } }
-    )
+  //   expect(
+  //     untransformed()()('1')(0)
+  //   ).to.deep.eql(
+  //     { found: true, from: 0, to: 1, type: 'num', data: { num: '1' } }
+  //   )
 
-    expect(
-      untransformed()('1')()(0)
-    ).to.deep.eql(
-      { found: true, from: 0, to: 1, type: 'num', data: { num: '1' } }
-    )
-  })
+  //   expect(
+  //     untransformed()('1')()(0)
+  //   ).to.deep.eql(
+  //     { found: true, from: 0, to: 1, type: 'num', data: { num: '1' } }
+  //   )
+  // })
 
   suite('fail fast validation', () => {
     test('invalid types', () => {

@@ -1,5 +1,3 @@
-const curry = require('./curry')
-
 module.exports = function (type, regex) {
   if (typeof type !== 'string' || !/^[\w^\d]\w+$/.test(type)) {
     throw new Error('The type must be a string and satisfy the following regex: /^[\\w^\\d]\\w+$/.')
@@ -16,7 +14,7 @@ module.exports = function (type, regex) {
 
   return ({
     [type]: (transform = data => data) =>
-      curry(({
+      ({
         [type]: (input, offset) => {
           regex.lastIndex = offset
 
@@ -40,6 +38,6 @@ module.exports = function (type, regex) {
 
           return info
         }
-      })[type])
+      })[type]
   })[type]
 }
