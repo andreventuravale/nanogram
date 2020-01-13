@@ -200,7 +200,7 @@ suite.only('list', () => {
       })
     })
 
-    test('empty input should generate an error', () => {
+    test('empty input should generate an error and be treated as not found', () => {
       const number = token('num', /\d/y)()
       const comma = token('comma', /,/y)()
 
