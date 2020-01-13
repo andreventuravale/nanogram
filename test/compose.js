@@ -7,8 +7,24 @@ const token = require('../src/token')
 
 suite.only('compose', () => {
   suite('fail fast validation', () => {
+    test.only('invalid types', () => {
+      expect(() => compose(_ => _)).to.throw('The type must be a string and satisfy the following regex: /^[\\w^\\d]\\w+$/.')
+      expect(() => compose('')).to.throw('The type must be a string and satisfy the following regex: /^[\\w^\\d]\\w+$/.')
+      expect(() => compose('$')).to.throw('The type must be a string and satisfy the following regex: /^[\\w^\\d]\\w+$/.')
+      expect(() => compose('1')).to.throw('The type must be a string and satisfy the following regex: /^[\\w^\\d]\\w+$/.')
+      expect(() => compose([])).to.throw('The type must be a string and satisfy the following regex: /^[\\w^\\d]\\w+$/.')
+      expect(() => compose({})).to.throw('The type must be a string and satisfy the following regex: /^[\\w^\\d]\\w+$/.')
+      expect(() => compose(1)).to.throw('The type must be a string and satisfy the following regex: /^[\\w^\\d]\\w+$/.')
+      expect(() => compose(NaN)).to.throw('The type must be a string and satisfy the following regex: /^[\\w^\\d]\\w+$/.')
+      expect(() => compose(new Date())).to.throw('The type must be a string and satisfy the following regex: /^[\\w^\\d]\\w+$/.')
+      expect(() => compose(null)).to.throw('The type must be a string and satisfy the following regex: /^[\\w^\\d]\\w+$/.')
+      expect(() => compose(Number(0))).to.throw('The type must be a string and satisfy the following regex: /^[\\w^\\d]\\w+$/.')
+      expect(() => compose(true)).to.throw('The type must be a string and satisfy the following regex: /^[\\w^\\d]\\w+$/.')
+      expect(() => compose(undefined)).to.throw('The type must be a string and satisfy the following regex: /^[\\w^\\d]\\w+$/.')
+    })
+
     test('empty composition is not valid', () => {
-      expect(() => compose('foo')).to.throw(`A composition must have at least one element.`)
+      expect(() => compose('foo')).to.throw('A composition must have at least one element.')
     })
   })
 

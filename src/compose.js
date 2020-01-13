@@ -1,6 +1,9 @@
 const curry = require('./curry')
 
 module.exports = function (type, ...list) {
+  if (typeof type !== 'string' || !/^[\w^\d]\w+$/.test(type)) {
+    throw new Error('The type must be a string and satisfy the following regex: /^[\\w^\\d]\\w+$/.')
+  }
   if (list.length === 0) {
     throw new Error('A composition must have at least one element.')
   }
