@@ -1,9 +1,11 @@
 
 module.exports = function (something) {
   return (input, offset) => {
-    const result = something(input, offset)()
+    const result = something(input, offset)
 
-    result.found = true
+    if (!result.found) {
+      result.ignored = true
+    }
 
     return result
   }
