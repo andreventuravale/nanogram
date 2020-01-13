@@ -64,4 +64,6 @@ suite('optional', () => {
       data: 'foo'
     })
   })
+
+  // TODO: fail fast validation: more than one argument passed ; first argument is not a function
 })
