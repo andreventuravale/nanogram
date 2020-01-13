@@ -16,41 +16,46 @@ module.exports = function (type, ...list) {
   }
 
   return curry(
-    (transform = result => result) =>
+    (transform = (data, info) => [data, info]) =>
       (input, offset) => {
         let i = offset
-        let currentResult = { found: true }
-        const composedData = []
-        const composedResults = {
+        let currentData = {}
+        let currentInfo = { found: true }
+        let currentResult = [currentData, currentInfo]
+        const composedData = {}
+        const composedInfo = {
           found: true,
           from: offset,
           to: i,
-          type,
-          data: composedData
+          type
         }
+        const stat = {}
 
-        for (let index = 0; currentResult.found && index < list.length; index++) {
+        for (let index = 0; currentInfo.found && index < list.length; index++) {
           const element = list[index]
 
           currentResult = element(input, i)
+          ;[currentData, currentInfo] = currentResult
 
-          if (currentResult.found) {
-            i = currentResult.to
-            composedData.push(currentResult)
+          if (currentInfo.found) {
+            i = currentInfo.to
+            stat[currentInfo.type] = stat[currentInfo.type] || { count: -1 }
+            stat[currentInfo.type].count++
+            composedData[`${currentInfo.type}${stat[currentInfo.type].count}`] = currentData
 
-            if (typeof currentResult.type === 'symbol') {
-              const currentType = currentResult.type
-              composedResults[currentType] = composedResults[currentType] || []
-              composedResults[currentType].push(currentResult)
-            }
+            // if (typeof currentInfo.type === 'symbol') {
+            //   const currentType = currentInfo.type
+            //   composedData[currentType] = composedData[currentType] || []
+            //   composedData[currentType].push(currentResult)
+            // }
           }
         }
 
-        composedResults.found = !!(currentResult && currentResult.found)
-        composedResults.from = offset
-        composedResults.to = i
+        composedInfo.found = !!(currentInfo && currentInfo.found)
+        composedInfo.from = offset
+        composedInfo.to = i
 
-        return transform(composedResults)
+        return transform(composedData, composedInfo)
       }
   )
 }
