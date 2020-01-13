@@ -1,51 +1,55 @@
 const chai = require('chai')
+const choose = require('../src/choose')
+const token = require('../src/token')
+
 chai.use(require('chai-subset'))
+
 const { expect } = chai
 
-const { choose, token } = require('../src')
-
 suite('choice', () => {
-  test('peek an option given an group', () => {
+  test('peeks an option given an list', () => {
     const choice = choose(
       'fruit',
-      token('orange', /orange/),
-      token('apple', /apple/),
-      token('watermelon', /watermelon/)
+      token('orange', /orange/y)(),
+      token('apple', /apple/y)(),
+      token('watermelon', /watermelon/y)()
     )
 
     const result = choice('orange', 0)
 
-    expect(result).to.containSubset(
-      {
-        found: true,
-        from: 0,
-        to: 6,
-        type: 'fruit',
-        data: [
-          { found: true, from: 0, to: 6, type: 'orange', data: ['orange'] }
-        ]
-      }
-    )
+    expect(result).to.eql({
+      found: true,
+      from: 0,
+      to: 6,
+      type: 'fruit',
+      data: [
+        {
+          found: true,
+          from: 0,
+          to: 6,
+          type: 'orange',
+          data: 'orange'
+        }
+      ]
+    })
   })
 
-  test('fails', () => {
+  test('fail case', () => {
     const choice = choose(
       'fruit',
-      token('orange', /orange/),
-      token('apple', /apple/),
-      token('watermelon', /watermelon/)
+      token('orange', /orange/y),
+      token('apple', /apple/y),
+      token('watermelon', /watermelon/y)
     )
 
     const result = choice('strawberry', 0)
 
-    expect(result).to.containSubset(
-      {
-        found: false,
-        from: 0,
-        to: 0,
-        type: 'fruit',
-        data: []
-      }
-    )
+    expect(result).to.eql({
+      found: false,
+      from: 0,
+      to: 0,
+      type: 'fruit',
+      data: []
+    })
   })
 })

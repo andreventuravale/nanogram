@@ -6,7 +6,7 @@ const token = require('../src/token')
 
 const { expect } = chai
 
-suite.only('compose', () => {
+suite('compose', () => {
   suite('success cases', () => {
     test('two occurrences on same item are indexed', () => {
       const number = token('num', /\d+/y)()
@@ -127,8 +127,6 @@ suite.only('compose', () => {
 
         const result = fullName('foo bar', 0)
 
-        require('clipboardy').writeSync(JSON.stringify(result, 0, 2))
-
         expect(result).to.deep.eql({
           found: true,
           from: 0,
@@ -203,8 +201,6 @@ suite.only('compose', () => {
       const sum = parse(({ numList }) => numList.reduce((sum, { data }) => sum + data, 0))
 
       const result = sum('1 2 3', 0)
-
-      require('clipboardy').writeSync(JSON.stringify(result, 0, 2))
 
       expect(result).to.eql({
         found: true,
