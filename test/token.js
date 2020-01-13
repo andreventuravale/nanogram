@@ -2,7 +2,7 @@ const { expect } = require('chai')
 
 const { token } = require('../src')
 
-suite.only('token', () => {
+suite('token', () => {
   suite('capture groups', () => {
     test('the full string match is returned in case there are no extra capture groups', () => {
       const source = '12345'

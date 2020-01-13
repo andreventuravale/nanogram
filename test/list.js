@@ -4,7 +4,7 @@ const token = require('../src/token')
 
 suite.only('list', () => {
   suite('success cases', () => {
-    test.only('finds a comma separated list of numbers', () => {
+    test('finds a comma separated list of numbers', () => {
       const number = token('num', /\d/y)()
       const comma = token('comma', /,/y)()
 
@@ -43,7 +43,7 @@ suite.only('list', () => {
       })
     })
 
-    test.only('finds two numbers separated by a comma', () => {
+    test('finds two numbers separated by a comma', () => {
       const number = token('num', /\d/y)()
       const comma = token('comma', /,/y)()
 
@@ -75,7 +75,7 @@ suite.only('list', () => {
       })
     })
 
-    test.only('finds a single number without the need of a separator', () => {
+    test('finds a single number without the need of a separator', () => {
       const number = token('num', /\d/y)()
       const comma = token('comma', /,/y)()
 
@@ -100,7 +100,7 @@ suite.only('list', () => {
       })
     })
 
-    test.only('ignores the last separator with no subsequent element', () => {
+    test('ignores the last separator with no subsequent element', () => {
       const number = token('num', /\d/y)()
       const comma = token('comma', /,/y)()
 
@@ -131,9 +131,48 @@ suite.only('list', () => {
         ]
       })
     })
+
+    test('custom transformation', () => {
+      const number = token('num', /\d/y)()
+      const comma = token('comma', /,/y)()
+
+      const numberList = list('list', number, comma)(num => Number(num))
+
+      const result = numberList('1,2,3', 0)
+
+      expect(result).to.eql({
+        found: true,
+        from: 0,
+        to: 5,
+        type: 'list',
+        data: [
+          {
+            found: true,
+            from: 0,
+            to: 1,
+            type: 'num',
+            data: 1
+          },
+          {
+            found: true,
+            from: 2,
+            to: 3,
+            type: 'num',
+            data: 2
+          },
+          {
+            found: true,
+            from: 4,
+            to: 5,
+            type: 'num',
+            data: 3
+          }
+        ]
+      })
+    })
   })
 
-  suite.only('fail cases', () => {
+  suite('fail cases', () => {
     test('empty input is considered not found', () => {
       const number = token('num', /\d/y)()
       const comma = token('comma', /,/y)()

@@ -9,6 +9,7 @@ module.exports = function (type, element, separator) {
         let last = elem
         let sep
 
+        first.data = transform(first.data, first)
         elems.push(first)
 
         do {
@@ -19,18 +20,13 @@ module.exports = function (type, element, separator) {
 
             if (elem.found) {
               last = elem
+              last.data = transform(last.data, last)
               elems.push(last)
             }
           }
         } while (sep.found && elem.found)
 
-        const result = { found: true, from: first.from, to: last.to, type, data: elems }
-
-        if (typeof elem.type === 'symbol') {
-          result[elem.type] = elems
-        }
-
-        return result
+        return { found: true, from: first.from, to: last.to, type, data: elems }
       }
 
       return { found: false, from: offset, to: offset, type, data: [] }
