@@ -16,7 +16,7 @@ module.exports = function (type, ...list) {
   }
 
   return curry(
-    (transform = (data, info) => [data, info]) =>
+    (transform = data => data) =>
       (input, offset) => {
         let i = offset
         let currentResult = { found: true }
@@ -29,10 +29,12 @@ module.exports = function (type, ...list) {
         }
         const stat = {}
 
-        for (let index = 0; currentResult.found && index < list.length; index++) {
-          const element = list[index]
+        let lastElement
 
-          currentResult = element(input, i)
+        for (let index = 0; currentResult.found && index < list.length; index++) {
+          lastElement = list[index]
+
+          currentResult = lastElement(input, i)
 
           if (currentResult.found) {
             i = currentResult.to
@@ -56,7 +58,23 @@ module.exports = function (type, ...list) {
         composedInfo.from = offset
         composedInfo.to = i
 
-        return transform(composedData, composedInfo)
+        composedInfo.data = transform(composedData, composedInfo)
+
+        if (!composedInfo.found) {
+          const lines = input.slice(0, i).split('\n')
+          const line = lines.length
+          const column = lines.pop().length + 1
+
+          composedInfo.errors = [
+            {
+              line,
+              column,
+              message: `${line}:${column}: expected element not found: "${lastElement.name}"`
+            }
+          ]
+        }
+
+        return composedInfo
       }
   )
 }

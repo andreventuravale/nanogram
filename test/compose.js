@@ -18,17 +18,16 @@ suite('compose', () => {
 
       const result = expr('1+2', 0)
 
-      expect(result[0]).to.deep.eql({
-        num0: '1',
-        op: '+',
-        num1: '2'
-      })
-
-      expect(result[1]).to.deep.eql({
+      expect(result).to.deep.eql({
         found: true,
         from: 0,
         to: 3,
-        type: 'expr'
+        type: 'expr',
+        data: {
+          op: '+',
+          num0: '1',
+          num1: '2'
+        }
       })
     })
 
@@ -45,19 +44,18 @@ suite('compose', () => {
 
       const result = expr('1+2=3', 0)
 
-      expect(result[0]).to.deep.eql({
-        num0: '1',
-        op0: '+',
-        num1: '2',
-        op1: '=',
-        num2: '3'
-      })
-
-      expect(result[1]).to.deep.eql({
+      expect(result).to.deep.eql({
         found: true,
         from: 0,
         to: 5,
-        type: 'expr'
+        type: 'expr',
+        data: {
+          num0: '1',
+          num1: '2',
+          op0: '+',
+          op1: '=',
+          num2: '3'
+        }
       })
     })
 
@@ -74,21 +72,20 @@ suite('compose', () => {
 
       const result = fullName('foo bar', 0)
 
-      expect(result[0]).to.deep.eql({
-        name: 'foo',
-        ws: ' ',
-        surname: 'bar'
-      })
-
-      expect(result[1]).to.deep.eql({
+      expect(result).to.deep.eql({
         found: true,
         from: 0,
         to: 7,
-        type: 'fullName'
+        type: 'fullName',
+        data: {
+          name: 'foo',
+          ws: ' ',
+          surname: 'bar'
+        }
       })
     })
 
-    test.only('custom transformation', () => {
+    test('custom transformation', () => {
       const number = token('num', /\d+/y)(num => Number(num))
 
       const parse = compose('sum',
@@ -101,36 +98,62 @@ suite('compose', () => {
 
       const result = sum('1+2', 0)
 
-      expect(result).to.eql(3)
+      expect(result).to.eql({
+        found: true,
+        from: 0,
+        to: 3,
+        type: 'sum',
+        data: 3
+      })
     })
   })
 
-  suite('fail cases', () => {
-  })
+  suite.only('fail cases', () => {
+    test('partial match', () => {
+      const ws = token('ws', /\s*/y)()
 
-  test('false - incomplete', () => {
-    const digit = token('digit', /\d/)()
-    const letter = token('letter', /[a-z]/i)()
+      const digit = token('digit', /\d/y)()
 
-    const expr = compose('expr',
-      digit,
-      letter,
-      digit
-    )()
+      const letter = token('letter', /[a-z]/yi)()
 
-    const result = expr('123', 0)
+      const expr = compose('expr',
+        ws,
+        digit,
+        ws,
+        letter,
+        ws,
+        digit,
+        ws
+      )()
 
-    expect(result).to.containSubset(
-      {
+      const result = expr([
+        '',
+        '1',
+        '  2',
+        '    3'
+      ].join('\n'), 0)
+
+      require('clipboardy').writeSync(JSON.stringify(result, 0, 2))
+
+      expect(result).to.eql({
         found: false,
         from: 0,
-        to: 1,
+        to: 5,
         type: 'expr',
-        data: [
-          { found: true, from: 0, to: 1, type: 'digit', data: ['1'] }
+        data: {
+          digit: '1',
+          ws0: '\n',
+          ws1: '\n  '
+        },
+        errors: [
+          {
+            line: 3,
+            column: 3,
+            message: '3:3: expected element not found: "letter"'
+          }
         ]
-      }
-    )
+      })
+    })
   })
 
   test('false - empty composition', () => {

@@ -12,31 +12,36 @@ module.exports = curry(
       throw new Error(`The regex should always have the y flag ( sticky ).`)
     }
 
-    return (transform = data => data) =>
-      curry(
-        (input, offset) => {
-          regex.lastIndex = offset
+    return ({
+      [type]: (transform = data => data) => {
+        return curry(
+          ({
+            [type]: (input, offset) => {
+              regex.lastIndex = offset
 
-          const match = regex.exec(input)
+              const match = regex.exec(input)
 
-          if (match === null) {
-            const info = { found: false, from: offset, to: offset, type }
+              if (match === null) {
+                const info = { found: false, from: offset, to: offset, type }
 
-            info.data = transform({}, info)
+                info.data = transform({}, info)
 
-            return info
-          }
+                return info
+              }
 
-          const info = { found: true, from: match.index, to: match.index + match[0].length, type }
+              const info = { found: true, from: match.index, to: match.index + match[0].length, type }
 
-          info.data = transform(
-            match.length === 1
-              ? match[0]
-              : match.reduce((data, val, i) => { data[`$${i}`] = val; return data }, {})
-          )
+              info.data = transform(
+                match.length === 1
+                  ? match[0]
+                  : match.reduce((data, val, i) => { data[`$${i}`] = val; return data }, {})
+              )
 
-          return info
-        }
-      )
+              return info
+            }
+          })[type]
+        )
+      }
+    })[type]
   }
 )

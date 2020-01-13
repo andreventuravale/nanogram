@@ -56,11 +56,11 @@ suite('token', () => {
     test('passing a transform function to a success case', () => {
       const source = '3.14'
 
-      const number = token('num', /(\d+)(.)(\d+)/y)
+      const untrasformed = token('num', /(\d+)(.)(\d+)/y)
 
-      const parse = number(({ $1, $3 }) => `${$1},${$3}`)
+      const transformed = untrasformed(({ $1, $3 }) => `${$1},${$3}`)
 
-      const result = parse(source, 0)
+      const result = transformed(source, 0)
 
       expect(result).to.eql({
         found: true,
@@ -72,11 +72,11 @@ suite('token', () => {
     })
 
     test('passing a transform function to a fail case', () => {
-      const number = token('name', /bar/y)
+      const untransformed = token('name', /bar/y)
 
-      const parse = number((data, { found }) => found ? `did success` : `did fail`)
+      const transformed = untransformed((data, { found }) => found ? `did success` : `did fail`)
 
-      const result = parse('foo', 0)
+      const result = transformed('foo', 0)
 
       expect(result).to.eql({
         found: false,
@@ -104,6 +104,16 @@ suite('token', () => {
     test('the resulting data is an empty object hash', function () {
       expect(this.result.data).to.eql({})
     })
+  })
+
+  test('type resulting function name is equal to the type', () => {
+    const untransformed = token('num', /(\d+)(.)(\d+)/y)
+
+    const transformed = untransformed(({ $1, $3 }) => `${$1},${$3}`)
+
+    expect(untransformed.name).to.eql('num')
+
+    expect(transformed.name).to.eql('num')
   })
 
   suite('curry', () => {
