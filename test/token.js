@@ -38,7 +38,7 @@ suite('token', () => {
     })
   })
 
-  suite('transforming', () => {
+  suite('transformation', () => {
     test('passing a transform function to a success case', () => {
       const source = '3.14'
 
