@@ -3,33 +3,33 @@ const { expect } = require('chai')
 const { token } = require('../src')
 
 suite('token', () => {
-  test('regex type checking', () => {
-    expect(() => token('digit', '\\d+')()('1', 0)).to.throw(`The regex is not instance of RegExp.`)
+  suite('fail fast validation', () => {
+    test('regex type checking', () => {
+      expect(() => token('digit', '\\d+')()('1', 0)).to.throw(`The regex is not instance of RegExp.`)
+    })
+
+    test(`the regex can't have the g flag`, () => {
+      expect(() => token('digit', /\d+/g)()('1', 0)).to.throw(`The regex g flag is not accepted.`)
+    })
+
+    test('the regex should always be sticky ( have y flag )', () => {
+      expect(() => token('digit', /\d+/)()('1', 0)).to.throw(`The regex should always have the y flag ( sticky ).`)
+    })
   })
 
-  test(`the regex can't have the g flag`, () => {
-    expect(() => token('digit', /\d+/g)()('1', 0)).to.throw(`The regex g flag is not accepted.`)
-  })
-
-  test('the regex should always be sticky ( have y flag )', () => {
-    expect(() => token('digit', /\d+/)()('1', 0)).to.throw(`The regex should always have the y flag ( sticky ).`)
-  })
-
-  suite('captures', () => {
+  suite('capture groups', () => {
     test('the full string match is returned in case there are no extra capture groups', () => {
       const source = '12345'
 
       const result = token('num', /\d+/y)()(source, 0)
 
-      expect(result).to.eql([
-        '12345',
-        {
-          found: true,
-          from: 0,
-          to: 5,
-          type: 'num'
-        }
-      ])
+      expect(result).to.eql({
+        found: true,
+        from: 0,
+        to: 5,
+        type: 'num',
+        data: '12345'
+      })
     })
 
     test('the capture groups are returned as $0..$N', () => {
@@ -37,27 +37,23 @@ suite('token', () => {
 
       const result = token('num', /(\d+)(.)(\d+)/y)()(source, 0)
 
-      require('clipboardy').writeSync(JSON.stringify(result, 0, 2))
-
-      expect(result).to.eql([
-        {
+      expect(result).to.eql({
+        found: true,
+        from: 0,
+        to: 4,
+        type: 'num',
+        data: {
           $0: '3.14',
           $1: '3',
           $2: '.',
           $3: '14'
-        },
-        {
-          found: true,
-          from: 0,
-          to: 4,
-          type: 'num'
         }
-      ])
+      })
     })
   })
 
   suite('transforming', () => {
-    test('true - passing a transform function', () => {
+    test('passing a transform function to a success case', () => {
       const source = '3.14'
 
       const number = token('num', /(\d+)(.)(\d+)/y)
@@ -66,39 +62,47 @@ suite('token', () => {
 
       const result = parse(source, 0)
 
-      expect(result).to.eql(`3,14`)
+      expect(result).to.eql({
+        found: true,
+        from: 0,
+        to: 4,
+        type: 'num',
+        data: '3,14'
+      })
     })
 
-    test('false - passing a transform function', () => {
-      const source = 'foo'
+    test('passing a transform function to a fail case', () => {
+      const number = token('name', /bar/y)
 
-      const number = token('num', /bar/y)
+      const parse = number((data, { found }) => found ? `did success` : `did fail`)
 
-      const parse = number(() => `did fail`)
+      const result = parse('foo', 0)
 
-      const result = parse(source, 0)
-
-      expect(result).to.eql(`did fail`)
+      expect(result).to.eql({
+        found: false,
+        from: 0,
+        to: 0,
+        type: 'name',
+        data: 'did fail'
+      })
     })
   })
 
-  suite('given a falsy result', () => {
+  suite('given a fail case', () => {
     setup(function () {
       this.result = token('space', /\s+/y)()('foo', 1)
-      this.data = this.result[0]
-      this.info = this.result[1]
     })
 
     test('the resulting start offset is the same as the input', function () {
-      expect(this.info.from).to.eql(1)
+      expect(this.result.from).to.eql(1)
     })
 
     test('the resulting end offset is the same as the input', function () {
-      expect(this.info.to).to.eql(1)
+      expect(this.result.to).to.eql(1)
     })
 
-    test('the resulting data is an empty array', function () {
-      expect(this.data).to.eql({})
+    test('the resulting data is an empty object hash', function () {
+      expect(this.result.data).to.eql({})
     })
   })
 

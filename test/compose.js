@@ -5,9 +5,9 @@ const { expect } = chai
 const compose = require('../src/compose')
 const token = require('../src/token')
 
-suite.only('compose', () => {
+suite('compose', () => {
   suite('success cases', () => {
-    test.only('two occurrences on same item are indexed', () => {
+    test('two occurrences on same item are indexed', () => {
       const number = token('num', /\d+/y)()
 
       const expr = compose('expr',
@@ -32,7 +32,7 @@ suite.only('compose', () => {
       })
     })
 
-    test.only('more than two occurrences on same item are indexed', () => {
+    test('more than two occurrences on same item are indexed', () => {
       const number = token('num', /\d+/y)()
 
       const expr = compose('expr',
@@ -61,7 +61,7 @@ suite.only('compose', () => {
       })
     })
 
-    test.only('single occurrence of an item is not indexed', () => {
+    test('single occurrence of an item is not indexed', () => {
       const name = token('name', /\w+/y)()
       const ws = token('ws', / +/y)()
       const surname = token('surname', /\w+/y)()
@@ -86,6 +86,22 @@ suite.only('compose', () => {
         to: 7,
         type: 'fullName'
       })
+    })
+
+    test.only('custom transformation', () => {
+      const number = token('num', /\d+/y)(num => Number(num))
+
+      const parse = compose('sum',
+        number,
+        token('op', /\+/y)(),
+        number
+      )
+
+      const sum = parse(({ num0, num1 }) => num0 + num1)
+
+      const result = sum('1+2', 0)
+
+      expect(result).to.eql(3)
     })
   })
 
@@ -167,25 +183,6 @@ suite.only('compose', () => {
         data: []
       }
     )
-  })
-
-  test('true - transform', () => {
-    const number = token('num', /\d+/)(num => Number(num))
-
-    const parse = compose('sum',
-      number,
-      token('op', /\+/)(),
-      number
-    )
-
-    const sum = parse(
-    )
-
-    const result = sum('1+2', 0)
-
-    console.log(JSON.stringify(result))
-
-    expect(result).to.eql(3)
   })
 
   test('false - transform', () => {
