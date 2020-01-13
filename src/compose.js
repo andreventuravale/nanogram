@@ -8,7 +8,7 @@ module.exports = function (type, ...list) {
     throw new Error('A composition must have at least one element.')
   }
 
-  return curry(({
+  return ({
     [type]: (transform = data => data) =>
       curry(({
         [type]: (input, offset) => {
@@ -71,5 +71,5 @@ module.exports = function (type, ...list) {
           return composedInfo
         }
       })[type])
-  })[type])
+  })[type]
 }

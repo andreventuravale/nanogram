@@ -220,7 +220,7 @@ suite.only('compose', () => {
     expect(transformed.name).to.eql('num')
   })
 
-  test('the compose function can be curried', () => {
+  test('is curriable', () => {
     const untransformed = compose('num', token('num', /\d+/y)())
 
     expect(
