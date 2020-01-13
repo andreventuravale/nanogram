@@ -5,7 +5,7 @@ const { expect } = chai
 const token = require('../src/token')
 const optional = require('../src/optional')
 
-suite.only('optional', () => {
+suite('optional', () => {
   test('when missing it returns not found but with an ignored flag set to true', () => {
     const foo = token('foo', /foo/y)()
 

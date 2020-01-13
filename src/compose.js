@@ -13,7 +13,7 @@ module.exports = function (type, ...list) {
       curry(({
         [type]: (input, offset) => {
           let i = offset
-          let currentResult = { found: true }
+          let currentResult = { ignored: true }
           const composedData = {}
           const composedInfo = {
             found: true,
@@ -25,7 +25,7 @@ module.exports = function (type, ...list) {
 
           let lastElement
 
-          for (let index = 0; currentResult.found && index < list.length; index++) {
+          for (let index = 0; (currentResult.ignored || currentResult.found) && index < list.length; index++) {
             lastElement = list[index]
 
             currentResult = lastElement(input, i)
@@ -48,13 +48,13 @@ module.exports = function (type, ...list) {
             }
           }
 
-          composedInfo.found = !!(currentResult && currentResult.found)
+          composedInfo.found = !!(currentResult && (currentResult.ignored || currentResult.found))
           composedInfo.from = offset
           composedInfo.to = i
 
           composedInfo.data = transform(composedData, composedInfo)
 
-          if (!composedInfo.found) {
+          if (!composedInfo.ignored && !composedInfo.found) {
             const lines = input.slice(0, i).split('\n')
             const line = lines.length
             const column = lines.pop().length + 1

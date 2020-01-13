@@ -2,7 +2,7 @@ const { expect } = require('chai')
 const list = require('../src/list')
 const token = require('../src/token')
 
-suite.only('list', () => {
+suite('list', () => {
   suite('success cases', () => {
     test('finds a comma separated list of numbers', () => {
       const number = token('num', /\d/y)()

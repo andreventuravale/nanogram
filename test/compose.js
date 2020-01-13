@@ -1,6 +1,7 @@
 const chai = require('chai')
 const compose = require('../src/compose')
 const list = require('../src/list')
+const optional = require('../src/optional')
 const token = require('../src/token')
 
 const { expect } = chai
@@ -82,6 +83,88 @@ suite.only('compose', () => {
           ws: ' ',
           surname: 'bar'
         }
+      })
+    })
+
+    suite('does not stop on a item marked as ignored', () => {
+      test('in begin', () => {
+        const name = token('name', /\w+/y)()
+        const space = token('space', / /y)()
+        const surname = token('surname', /\w+/y)()
+
+        const fullName = compose('fullName',
+          optional(name),
+          space,
+          surname
+        )()
+
+        const result = fullName(' bar', 0)
+
+        expect(result).to.deep.eql({
+          found: true,
+          from: 0,
+          to: 4,
+          type: 'fullName',
+          data: {
+            space: ' ',
+            surname: 'bar'
+          }
+        })
+      })
+
+      test('in the middle', () => {
+        const name = token('name', /\w+/y)()
+        const colon = token('colon', /:/y)()
+        const space = token('space', / */y)()
+        const surname = token('surname', /\w+/y)()
+
+        const fullName = compose('fullName',
+          name,
+          optional(colon),
+          space,
+          surname
+        )()
+
+        const result = fullName('foo bar', 0)
+
+        require('clipboardy').writeSync(JSON.stringify(result, 0, 2))
+
+        expect(result).to.deep.eql({
+          found: true,
+          from: 0,
+          to: 7,
+          type: 'fullName',
+          data: {
+            name: 'foo',
+            space: ' ',
+            surname: 'bar'
+          }
+        })
+      })
+
+      test('in the end', () => {
+        const name = token('name', /\w+/y)()
+        const space = token('space', / /y)()
+        const surname = token('surname', /\w+/y)()
+
+        const fullName = compose('fullName',
+          name,
+          space,
+          optional(surname)
+        )()
+
+        const result = fullName('foo ', 0)
+
+        expect(result).to.deep.eql({
+          found: true,
+          from: 0,
+          to: 4,
+          type: 'fullName',
+          data: {
+            name: 'foo',
+            space: ' '
+          }
+        })
       })
     })
 
