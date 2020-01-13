@@ -1,116 +1,172 @@
 const { expect } = require('chai')
+const list = require('../src/list')
+const token = require('../src/token')
 
-const { list, token } = require('../src')
+suite.only('list', () => {
+  suite('success cases', () => {
+    test.only('finds a comma separated list of numbers', () => {
+      const number = token('num', /\d/y)()
+      const comma = token('comma', /,/y)()
 
-suite('list', () => {
-  test('true - happy case', () => {
-    const source = '1,2,3'
+      const numberList = list('list', number, comma)()
 
-    const element = (input, offset) => token('elem', /\d/, input, offset)()
+      const result = numberList('1,2,3', 0)
 
-    const separator = (input, offset) => token('sep', /,/, input, offset)()
-
-    expect(list('list', element, separator, source, 0)).to.eql(
-      {
+      expect(result).to.eql({
         found: true,
         from: 0,
         to: 5,
         type: 'list',
         data: [
-          { found: true, from: 0, to: 1, type: 'elem', data: ['1'] },
-          { found: true, from: 2, to: 3, type: 'elem', data: ['2'] },
-          { found: true, from: 4, to: 5, type: 'elem', data: ['3'] }
+          {
+            found: true,
+            from: 0,
+            to: 1,
+            type: 'num',
+            data: '1'
+          },
+          {
+            found: true,
+            from: 2,
+            to: 3,
+            type: 'num',
+            data: '2'
+          },
+          {
+            found: true,
+            from: 4,
+            to: 5,
+            type: 'num',
+            data: '3'
+          }
         ]
-      }
-    )
-  })
+      })
+    })
 
-  test('elements named with symbols are also key accessible by key indexing', () => {
-    const source = '1,2,3'
+    test.only('finds two numbers separated by a comma', () => {
+      const number = token('num', /\d/y)()
+      const comma = token('comma', /,/y)()
 
-    const element = (input, offset) => token(Symbol.for('elem'), /\d/, input, offset)()
+      const numberList = list('list', number, comma)()
 
-    const separator = (input, offset) => token('sep', /,/, input, offset)()
+      const result = numberList('1,2', 0)
 
-    const result = list('list', element, separator, source, 0)
-
-    expect(result).to.eql(
-      {
-        found: true,
-        from: 0,
-        to: 5,
-        type: 'list',
-        data: [
-          { found: true, from: 0, to: 1, type: Symbol.for('elem'), data: ['1'] },
-          { found: true, from: 2, to: 3, type: Symbol.for('elem'), data: ['2'] },
-          { found: true, from: 4, to: 5, type: Symbol.for('elem'), data: ['3'] }
-        ]
-      }
-    )
-
-    expect(result[Symbol.for('elem')]).to.eql([
-      { found: true, from: 0, to: 1, type: Symbol.for('elem'), data: ['1'] },
-      { found: true, from: 2, to: 3, type: Symbol.for('elem'), data: ['2'] },
-      { found: true, from: 4, to: 5, type: Symbol.for('elem'), data: ['3'] }
-    ])
-  })
-
-  test('true - single element', () => {
-    const source = '1'
-
-    const element = (input, offset) => token('elem', /\d/, input, offset)()
-
-    const separator = (input, offset) => token('sep', /,/, input, offset)()
-
-    expect(list('list', element, separator, source, 0)).to.eql(
-      {
-        found: true,
-        from: 0,
-        to: 1,
-        type: 'list',
-        data: [
-          { found: true, from: 0, to: 1, type: 'elem', data: ['1'] }
-        ]
-      }
-    )
-  })
-
-  test('true - ignores the last separator with no subsequent element', () => {
-    const source = '1,2,'
-
-    const element = (input, offset) => token('elem', /\d/, input, offset)()
-
-    const separator = (input, offset) => token('sep', /,/, input, offset)()
-
-    expect(list('list', element, separator, source, 0)).to.eql(
-      {
+      expect(result).to.eql({
         found: true,
         from: 0,
         to: 3,
         type: 'list',
         data: [
-          { found: true, from: 0, to: 1, type: 'elem', data: ['1'] },
-          { found: true, from: 2, to: 3, type: 'elem', data: ['2'] }
+          {
+            found: true,
+            from: 0,
+            to: 1,
+            type: 'num',
+            data: '1'
+          },
+          {
+            found: true,
+            from: 2,
+            to: 3,
+            type: 'num',
+            data: '2'
+          }
         ]
-      }
-    )
+      })
+    })
+
+    test.only('finds a single number without the need of a separator', () => {
+      const number = token('num', /\d/y)()
+      const comma = token('comma', /,/y)()
+
+      const numberList = list('list', number, comma)()
+
+      const result = numberList('1', 0)
+
+      expect(result).to.eql({
+        found: true,
+        from: 0,
+        to: 1,
+        type: 'list',
+        data: [
+          {
+            found: true,
+            from: 0,
+            to: 1,
+            type: 'num',
+            data: '1'
+          }
+        ]
+      })
+    })
+
+    test.only('ignores the last separator with no subsequent element', () => {
+      const number = token('num', /\d/y)()
+      const comma = token('comma', /,/y)()
+
+      const numberList = list('list', number, comma)()
+
+      const result = numberList('1,2,', 0)
+
+      expect(result).to.eql({
+        found: true,
+        from: 0,
+        to: 3,
+        type: 'list',
+        data: [
+          {
+            found: true,
+            from: 0,
+            to: 1,
+            type: 'num',
+            data: '1'
+          },
+          {
+            found: true,
+            from: 2,
+            to: 3,
+            type: 'num',
+            data: '2'
+          }
+        ]
+      })
+    })
   })
 
-  test('false - empty input', () => {
-    const source = ''
+  suite.only('fail cases', () => {
+    test('empty input is considered not found', () => {
+      const number = token('num', /\d/y)()
+      const comma = token('comma', /,/y)()
 
-    const element = (input, offset) => token('elem', /\d/, input, offset)()
+      const numberList = list('list', number, comma)()
 
-    const separator = (input, offset) => token('sep', /,/, input, offset)()
+      expect(
+        numberList('1', 0)
+      ).to.eql({
+        found: true,
+        from: 0,
+        to: 1,
+        type: 'list',
+        data: [
+          {
+            found: true,
+            from: 0,
+            to: 1,
+            type: 'num',
+            data: '1'
+          }
+        ]
+      })
 
-    expect(list('list', element, separator, source, 0)).to.eql(
-      {
+      expect(
+        numberList('', 0)
+      ).to.eql({
         found: false,
         from: 0,
         to: 0,
         type: 'list',
         data: []
-      }
-    )
+      })
+    })
   })
 })
