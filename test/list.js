@@ -224,4 +224,6 @@ suite.only('list', () => {
       })
     })
   })
+
+  // TODO: fail fast validation: type, element, sep
 })
