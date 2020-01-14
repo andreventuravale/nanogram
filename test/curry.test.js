@@ -3,7 +3,7 @@ const { expect } = require('chai')
 const curry = require('../src/curry')
 
 suite('curry', () => {
-  test('Propagates the name of the original function', function () {
+  test('propagates the name of the original function', function () {
     function sumXY (x, y, z) {
       return x + y + z
     }
