@@ -1,6 +1,6 @@
 const { expect } = require('chai')
 
-const { token } = require('../src')
+const token = require('../src/token')
 
 suite('token', () => {
   suite('capture groups', () => {

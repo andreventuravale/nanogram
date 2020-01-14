@@ -30,7 +30,7 @@ suite('choice', () => {
     })
   })
 
-  test('fail case', () => {
+  test('fail to peek an option', () => {
     const choice = choose(
       'fruit',
       token('orange', /orange/y)(),
@@ -49,7 +49,7 @@ suite('choice', () => {
     })
   })
 
-  test('transformation on success and on fail', () => {
+  test('transformation on both success and fail', () => {
     const choice = choose(
       'fruit',
       token('orange', /orange/y)(),
