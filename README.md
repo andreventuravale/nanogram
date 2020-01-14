@@ -13,5 +13,3 @@ https://jsperf.com/regex-offsetting-lastindex-vs-string-slicing
 - [ ] Investigate if CFG properties applies to a composed graph
   - [ ] Left-recursion elimination
   - [ ] Left-factoring and backtracking
-
-- [ ] POC for optimization of a composed graph into a linear loop driven by a state machine
