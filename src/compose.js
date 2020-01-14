@@ -31,17 +31,19 @@ module.exports = function (type, ...list) {
             if (currentResult.found) {
               i = currentResult.to
 
-              stat[currentResult.type] = stat[currentResult.type] || { count: 0 }
-              stat[currentResult.type].count++
+              if (!currentResult.hidden) {
+                stat[currentResult.type] = stat[currentResult.type] || { count: 0 }
+                stat[currentResult.type].count++
 
-              if (stat[currentResult.type].count === 2) {
-                composedData[`${currentResult.type}0`] = composedData[currentResult.type]
-                delete composedData[currentResult.type]
-                composedData[`${currentResult.type}${stat[currentResult.type].count - 1}`] = currentResult.data
-              } else if (stat[currentResult.type].count > 1) {
-                composedData[`${currentResult.type}${stat[currentResult.type].count - 1}`] = currentResult.data
-              } else {
-                composedData[currentResult.type] = currentResult.data
+                if (stat[currentResult.type].count === 2) {
+                  composedData[`${currentResult.type}0`] = composedData[currentResult.type]
+                  delete composedData[currentResult.type]
+                  composedData[`${currentResult.type}${stat[currentResult.type].count - 1}`] = currentResult.data
+                } else if (stat[currentResult.type].count > 1) {
+                  composedData[`${currentResult.type}${stat[currentResult.type].count - 1}`] = currentResult.data
+                } else {
+                  composedData[currentResult.type] = currentResult.data
+                }
               }
             }
           }

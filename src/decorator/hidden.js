@@ -1,6 +1,6 @@
-module.exports = data => {
+module.exports = info => {
   return {
-    ...data,
+    ...info,
     hidden: true
   }
 }

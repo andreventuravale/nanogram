@@ -6,7 +6,7 @@ const optional = require('../src/optional')
 
 suite('optional', () => {
   test('when missing it returns not found but with an ignored flag set to true', () => {
-    const foo = token()('foo', /foo/y)()
+    const foo = token()()('foo', /foo/y)()
 
     expect(
       foo('foo', 0)
@@ -41,7 +41,7 @@ suite('optional', () => {
   })
 
   test('when found the result is just passed along from the original element', () => {
-    const foo = token()('foo', /foo/y)()
+    const foo = token()()('foo', /foo/y)()
 
     expect(
       foo('foo', 0)
