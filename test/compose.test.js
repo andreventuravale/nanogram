@@ -3,17 +3,18 @@ const compose = require('../src/compose')
 const list = require('../src/list')
 const optional = require('../src/optional')
 const token = require('../src/token')
+const all = require('../src/offsetter/all')
 
 const { expect } = chai
 
 suite('compose', () => {
   suite('success cases', () => {
     test('two occurrences on same item are indexed', () => {
-      const number = token('num', /\d+/y)()
+      const number = token(all)('num', /\d+/y)()
 
       const expr = compose('expr',
         number,
-        token('op', /\+/y)(),
+        token(all)('op', /\+/y)(),
         number
       )()
 
@@ -33,13 +34,13 @@ suite('compose', () => {
     })
 
     test('more than two occurrences on same item are indexed', () => {
-      const number = token('num', /\d+/y)()
+      const number = token(all)('num', /\d+/y)()
 
       const expr = compose('expr',
         number,
-        token('op', /\+/y)(),
+        token(all)('op', /\+/y)(),
         number,
-        token('op', /=/y)(),
+        token(all)('op', /=/y)(),
         number
       )()
 
@@ -61,9 +62,9 @@ suite('compose', () => {
     })
 
     test('single occurrence of an item is not indexed', () => {
-      const name = token('name', /\w+/y)()
-      const ws = token('ws', / +/y)()
-      const surname = token('surname', /\w+/y)()
+      const name = token(all)('name', /\w+/y)()
+      const ws = token(all)('ws', / +/y)()
+      const surname = token(all)('surname', /\w+/y)()
 
       const fullName = compose('fullName',
         name,
@@ -88,9 +89,9 @@ suite('compose', () => {
 
     suite('does not stop on a item marked as ignored', () => {
       test('in begin', () => {
-        const name = token('name', /\w+/y)()
-        const space = token('space', / /y)()
-        const surname = token('surname', /\w+/y)()
+        const name = token(all)('name', /\w+/y)()
+        const space = token(all)('space', / /y)()
+        const surname = token(all)('surname', /\w+/y)()
 
         const fullName = compose('fullName',
           optional(name),
@@ -113,10 +114,10 @@ suite('compose', () => {
       })
 
       test('in the middle', () => {
-        const name = token('name', /\w+/y)()
-        const colon = token('colon', /:/y)()
-        const space = token('space', / */y)()
-        const surname = token('surname', /\w+/y)()
+        const name = token(all)('name', /\w+/y)()
+        const colon = token(all)('colon', /:/y)()
+        const space = token(all)('space', / */y)()
+        const surname = token(all)('surname', /\w+/y)()
 
         const fullName = compose('fullName',
           name,
@@ -141,9 +142,9 @@ suite('compose', () => {
       })
 
       test('in the end', () => {
-        const name = token('name', /\w+/y)()
-        const space = token('space', / /y)()
-        const surname = token('surname', /\w+/y)()
+        const name = token(all)('name', /\w+/y)()
+        const space = token(all)('space', / /y)()
+        const surname = token(all)('surname', /\w+/y)()
 
         const fullName = compose('fullName',
           name,
@@ -167,8 +168,8 @@ suite('compose', () => {
     })
 
     test('many successed ignorables at end', () => {
-      const name = token('name', /\w+/y)()
-      const space = token('space', / /y)()
+      const name = token(all)('name', /\w+/y)()
+      const space = token(all)('space', / /y)()
       const surname = list('surname', name, space)()
 
       const fullName = compose('fullName',
@@ -201,11 +202,11 @@ suite('compose', () => {
     })
 
     test('custom transformation', () => {
-      const number = token('num', /\d+/y)(num => Number(num))
+      const number = token(all)('num', /\d+/y)(num => Number(num))
 
       const untransformed = compose('sum',
         number,
-        token('op', /\+/y)(),
+        token(all)('op', /\+/y)(),
         number
       )
 
@@ -223,8 +224,8 @@ suite('compose', () => {
     })
 
     test('custom transformation', () => {
-      const number = token('num', /\d+/y)(num => Number(num))
-      const ws = token('ws', / +/y)()
+      const number = token(all)('num', /\d+/y)(num => Number(num))
+      const ws = token(all)('ws', / +/y)()
       const numberList = list('numList', number, ws)
       const oddNumberList = numberList(list => list.filter(num => num.data % 2))
 
@@ -246,11 +247,11 @@ suite('compose', () => {
 
   suite('fail cases', () => {
     test('partial matching should generate an error', () => {
-      const ws = token('ws', /\s*/y)()
+      const ws = token(all)('ws', /\s*/y)()
 
-      const digit = token('digit', /\d/y)()
+      const digit = token(all)('digit', /\d/y)()
 
-      const letter = token('letter', /[a-z]/yi)()
+      const letter = token(all)('letter', /[a-z]/yi)()
 
       const expr = compose('expr',
         ws,
@@ -290,7 +291,7 @@ suite('compose', () => {
     })
 
     test('empty input should generate an error', () => {
-      const number = token('digit', /\d/y)()
+      const number = token(all)('digit', /\d/y)()
 
       const expr = compose('expr',
         number
@@ -316,11 +317,11 @@ suite('compose', () => {
     })
 
     test('custom transformation', () => {
-      const number = token('num', /\d+/y)()
+      const number = token(all)('num', /\d+/y)()
 
       const untransformed = compose('sum',
         number,
-        token('op', /\+/y)(),
+        token(all)('op', /\+/y)(),
         number
       )
 
@@ -347,7 +348,7 @@ suite('compose', () => {
 
   test('type resulting function name is equal to the type', () => {
     const untransformed = compose('num',
-      token('num', /(\d+)/y)()
+      token(all)('num', /(\d+)/y)()
     )
 
     expect(untransformed.name).to.deep.eql('num')
@@ -358,7 +359,7 @@ suite('compose', () => {
   })
 
   // test('is curriable', () => {
-  //   const untransformed = compose('num', token('num', /\d+/y)())
+  //   const untransformed = compose('num', token(allInput)('num', /\d+/y)())
 
   //   expect(
   //     untransformed()('1', 0)

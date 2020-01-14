@@ -4,6 +4,8 @@ module.exports = function (regex) {
 
     const match = regex.exec(input)
 
-    return match.index + match[0].length
+    return match
+      ? match.index + match[0].length
+      : offset
   }
 }

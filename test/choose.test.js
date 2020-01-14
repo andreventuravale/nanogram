@@ -8,9 +8,9 @@ suite('choice', () => {
   test('peeks an option given an list', () => {
     const choice = choose(
       'fruit',
-      token('orange', /orange/y)(),
-      token('apple', /apple/y)(),
-      token('watermelon', /watermelon/y)()
+      token()('orange', /orange/y)(),
+      token()('apple', /apple/y)(),
+      token()('watermelon', /watermelon/y)()
     )()
 
     const result = choice('orange', 0)
@@ -33,9 +33,9 @@ suite('choice', () => {
   test('fail to peek an option', () => {
     const choice = choose(
       'fruit',
-      token('orange', /orange/y)(),
-      token('apple', /apple/y)(),
-      token('watermelon', /watermelon/y)()
+      token()('orange', /orange/y)(),
+      token()('apple', /apple/y)(),
+      token()('watermelon', /watermelon/y)()
     )()
 
     const result = choice('strawberry', 0)
@@ -52,9 +52,9 @@ suite('choice', () => {
   test('transformation on both success and fail', () => {
     const choice = choose(
       'fruit',
-      token('orange', /orange/y)(),
-      token('apple', /apple/y)(),
-      token('watermelon', /watermelon/y)()
+      token()('orange', /orange/y)(),
+      token()('apple', /apple/y)(),
+      token()('watermelon', /watermelon/y)()
     )(({ data }, { found }) => found ? data : 'banana')
 
     expect(

@@ -3,11 +3,40 @@ const { expect } = require('chai')
 const token = require('../src/token')
 
 suite('token', () => {
+  test('the default offsetter is a multiline whitespace skipper', () => {
+    const source = [
+      '  foo  ',
+      '  bar  '
+    ].join('\n')
+
+    const word = token()('word', /\w+/y)()
+
+    expect(
+      word(source, 0)
+    ).to.deep.eql({
+      found: true,
+      from: 0,
+      to: 5,
+      type: 'word',
+      data: 'foo'
+    })
+
+    expect(
+      word(source, 5)
+    ).to.deep.eql({
+      found: true,
+      from: 5,
+      to: 13,
+      type: 'word',
+      data: 'bar'
+    })
+  })
+
   suite('capture groups', () => {
     test('the full string match is returned in case there are no extra capture groups', () => {
       const source = '12345'
 
-      const result = token('num', /\d+/y)()(source, 0)
+      const result = token()('num', /\d+/y)()(source, 0)
 
       expect(result).to.deep.eql({
         found: true,
@@ -21,7 +50,7 @@ suite('token', () => {
     test('the capture groups are returned as $0..$N', () => {
       const source = '3.14'
 
-      const result = token('num', /(\d+)(.)(\d+)/y)()(source, 0)
+      const result = token()('num', /(\d+)(.)(\d+)/y)()(source, 0)
 
       expect(result).to.deep.eql({
         found: true,
@@ -42,7 +71,7 @@ suite('token', () => {
     test('passing a transform function to a success case', () => {
       const source = '3.14'
 
-      const untransformed = token('num', /(\d+)(.)(\d+)/y)
+      const untransformed = token()('num', /(\d+)(.)(\d+)/y)
 
       const transformed = untransformed(({ $1, $3 }) => `${$1},${$3}`)
 
@@ -58,7 +87,7 @@ suite('token', () => {
     })
 
     test('passing a transform function to a fail case', () => {
-      const untransformed = token('name', /bar/y)
+      const untransformed = token()('name', /bar/y)
 
       const transformed = untransformed((data, { found }) => found ? `did success` : `did fail`)
 
@@ -76,7 +105,7 @@ suite('token', () => {
 
   suite('given a fail case', () => {
     setup(function () {
-      this.result = token('space', /\s+/y)()('foo', 1)
+      this.result = token()('space', /\s+/y)()('foo', 1)
     })
 
     test('the resulting start offset is the same as the input', function () {
@@ -93,7 +122,7 @@ suite('token', () => {
   })
 
   test('type resulting function name is equal to the type', () => {
-    const untransformed = token('num', /(\d+)(.)(\d+)/y)
+    const untransformed = token()('num', /(\d+)(.)(\d+)/y)
 
     const transformed = untransformed(({ $1, $3 }) => `${$1},${$3}`)
 
@@ -103,7 +132,7 @@ suite('token', () => {
   })
 
   // test('is curriable', () => {
-  //   const untransformed = token('num', /\d/y)
+  //   const untransformed = token()('num', /\d/y)
 
   //   expect(untransformed()('1', 0)).to.deep.eql(
   //     { found: true, from: 0, to: 1, type: 'num', data: '1' }
@@ -124,31 +153,31 @@ suite('token', () => {
 
   suite('fail fast validation', () => {
     test('invalid types', () => {
-      expect(() => token(_ => _)).to.throw('The type must be a string and satisfy the following regex: /^[\\w^\\d]\\w+$/.')
-      expect(() => token('')).to.throw('The type must be a string and satisfy the following regex: /^[\\w^\\d]\\w+$/.')
-      expect(() => token('$')).to.throw('The type must be a string and satisfy the following regex: /^[\\w^\\d]\\w+$/.')
-      expect(() => token('1')).to.throw('The type must be a string and satisfy the following regex: /^[\\w^\\d]\\w+$/.')
-      expect(() => token([])).to.throw('The type must be a string and satisfy the following regex: /^[\\w^\\d]\\w+$/.')
-      expect(() => token({})).to.throw('The type must be a string and satisfy the following regex: /^[\\w^\\d]\\w+$/.')
-      expect(() => token(1)).to.throw('The type must be a string and satisfy the following regex: /^[\\w^\\d]\\w+$/.')
-      expect(() => token(NaN)).to.throw('The type must be a string and satisfy the following regex: /^[\\w^\\d]\\w+$/.')
-      expect(() => token(new Date())).to.throw('The type must be a string and satisfy the following regex: /^[\\w^\\d]\\w+$/.')
-      expect(() => token(null)).to.throw('The type must be a string and satisfy the following regex: /^[\\w^\\d]\\w+$/.')
-      expect(() => token(Number(0))).to.throw('The type must be a string and satisfy the following regex: /^[\\w^\\d]\\w+$/.')
-      expect(() => token(true)).to.throw('The type must be a string and satisfy the following regex: /^[\\w^\\d]\\w+$/.')
-      expect(() => token(undefined)).to.throw('The type must be a string and satisfy the following regex: /^[\\w^\\d]\\w+$/.')
+      expect(() => token()(_ => _)).to.throw('The type must be a string and satisfy the following regex: /^[\\w^\\d]\\w+$/.')
+      expect(() => token()('')).to.throw('The type must be a string and satisfy the following regex: /^[\\w^\\d]\\w+$/.')
+      expect(() => token()('$')).to.throw('The type must be a string and satisfy the following regex: /^[\\w^\\d]\\w+$/.')
+      expect(() => token()('1')).to.throw('The type must be a string and satisfy the following regex: /^[\\w^\\d]\\w+$/.')
+      expect(() => token()([])).to.throw('The type must be a string and satisfy the following regex: /^[\\w^\\d]\\w+$/.')
+      expect(() => token()({})).to.throw('The type must be a string and satisfy the following regex: /^[\\w^\\d]\\w+$/.')
+      expect(() => token()(1)).to.throw('The type must be a string and satisfy the following regex: /^[\\w^\\d]\\w+$/.')
+      expect(() => token()(NaN)).to.throw('The type must be a string and satisfy the following regex: /^[\\w^\\d]\\w+$/.')
+      expect(() => token()(new Date())).to.throw('The type must be a string and satisfy the following regex: /^[\\w^\\d]\\w+$/.')
+      expect(() => token()(null)).to.throw('The type must be a string and satisfy the following regex: /^[\\w^\\d]\\w+$/.')
+      expect(() => token()(Number(0))).to.throw('The type must be a string and satisfy the following regex: /^[\\w^\\d]\\w+$/.')
+      expect(() => token()(true)).to.throw('The type must be a string and satisfy the following regex: /^[\\w^\\d]\\w+$/.')
+      expect(() => token()(undefined)).to.throw('The type must be a string and satisfy the following regex: /^[\\w^\\d]\\w+$/.')
     })
 
     test('regex type checking', () => {
-      expect(() => token('digit', '\\d+')()('1', 0)).to.throw(`The regex is not instance of RegExp.`)
+      expect(() => token()('digit', '\\d+')()('1', 0)).to.throw(`The regex is not instance of RegExp.`)
     })
 
     test(`the regex can't have the g flag`, () => {
-      expect(() => token('digit', /\d+/g)()('1', 0)).to.throw(`The regex g flag is not accepted.`)
+      expect(() => token()('digit', /\d+/g)()('1', 0)).to.throw(`The regex g flag is not accepted.`)
     })
 
     test('the regex should always be sticky ( have y flag )', () => {
-      expect(() => token('digit', /\d+/)()('1', 0)).to.throw(`The regex must always have the y flag ( sticky ).`)
+      expect(() => token()('digit', /\d+/)()('1', 0)).to.throw(`The regex must always have the y flag ( sticky ).`)
     })
   })
 })
