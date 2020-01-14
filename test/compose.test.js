@@ -245,7 +245,7 @@ suite('compose', () => {
       })
     })
 
-    test.only(`items flagged as hidden are considered found but their data won't be captured on composed data results`, () => {
+    test(`items flagged as hidden are considered found but their data won't be captured on composed data results`, () => {
       const ws = token(all)(hidden)('ws', /\s*/y)()
 
       const digit = token()()('digit', /\d/y)()
