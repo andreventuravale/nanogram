@@ -1,29 +1,29 @@
 const { expect } = require('chai')
 
-const all = require('../src/offsetter/all')
+const noOffset = require('../src/offsetter/noOffset')
 const skipper = require('../src/offsetter/skipper')
-const wsSkip = require('../src/offsetter/wsSkip')
+const noWhitespace = require('../src/offsetter/noWhitespace')
 
 const custom = skipper(/\d+/y)
 
 suite('offsetter', () => {
-  suite('all', () => {
+  suite('noOffset', () => {
     test('pass along the offset without any modification', () => {
-      expect(all('', 0)).to.deep.eql(0)
-      expect(all('', 10)).to.deep.eql(10)
+      expect(noOffset('', 0)).to.deep.eql(0)
+      expect(noOffset('', 10)).to.deep.eql(10)
     })
   })
 
   suite('skipper', () => {
-    suite('whitspace', () => {
+    suite('noWhitspace', () => {
       test('skip whitespace - gives a new offset', () => {
-        const offset = wsSkip('  1', 0)
+        const offset = noWhitespace('  1', 0)
 
         expect(offset).to.deep.eql(2)
       })
 
       test('skip whitespace - nothing to skip use the same offset', () => {
-        const offset = wsSkip('1', 0)
+        const offset = noWhitespace('1', 0)
 
         expect(offset).to.deep.eql(0)
       })

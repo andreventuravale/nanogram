@@ -1,6 +1,6 @@
-const all = require('./offsetter/all')
+const noOffset = require('./offsetter/noOffset')
 
-module.exports = function (offsetter = all) {
+module.exports = function (offsetter = noOffset) {
   return function (decorator = info => info) {
     return function (type, regex) {
       if (typeof type !== 'string' || !/^[\w^\d]\w+$/.test(type)) {
