@@ -8,8 +8,8 @@
     "cover": "nyc --exit --reporter=lcov --reporter=text --per-file npm run test",
     "lint:check": "standard",
     "lint": "standard --fix",
-    "test:dev": "mocha -ui tdd --recursive --watch test",
-    "test": "mocha -ui tdd --recursive test"
+    "test:dev": "mocha -ui tdd --recursive --watch test/**/*.test.js",
+    "test": "mocha -ui tdd --recursive test/**/*.test.js"
   },
   "repository": {
     "type": "git",
