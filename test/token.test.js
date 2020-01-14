@@ -53,32 +53,17 @@ suite('token', () => {
     })
   })
 
-  test('the default offsetter is a multiline whitespace skipper', () => {
-    const source = [
-      '  foo  ',
-      '  bar  '
-    ].join('\n')
-
-    const word = token()()('word', /\w+/y)()
+  test('the default offsetter pass along the offset without any change', () => {
+    const word = token()()('word', / \w+ /y)()
 
     expect(
-      word(source, 0)
+      word('  foo  ', 1)
     ).to.deep.eql({
       found: true,
-      from: 0,
-      to: 5,
+      from: 1,
+      to: 6,
       type: 'word',
-      data: 'foo'
-    })
-
-    expect(
-      word(source, 5)
-    ).to.deep.eql({
-      found: true,
-      from: 5,
-      to: 13,
-      type: 'word',
-      data: 'bar'
+      data: ' foo '
     })
   })
 

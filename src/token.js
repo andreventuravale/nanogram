@@ -1,8 +1,6 @@
-const skipper = require('./offsetter/skipper')
+const all = require('./offsetter/all')
 
-const skipWs = skipper(/\s+/y)
-
-module.exports = function (offsetter = skipWs) {
+module.exports = function (offsetter = all) {
   return function (decorator = info => info) {
     return function (type, regex) {
       if (typeof type !== 'string' || !/^[\w^\d]\w+$/.test(type)) {

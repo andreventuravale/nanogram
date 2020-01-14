@@ -5,6 +5,7 @@ const hidden = require('../src/decorator/hidden')
 const list = require('../src/list')
 const optional = require('../src/optional')
 const token = require('../src/token')
+const wsSkip = require('../src/offsetter/wsSkip')
 
 const { expect } = chai
 
@@ -248,9 +249,9 @@ suite('compose', () => {
     test(`items flagged as hidden are considered found but their data won't be captured on composed data results`, () => {
       const ws = token(all)(hidden)('ws', /\s*/y)()
 
-      const digit = token()()('digit', /\d/y)()
+      const digit = token(wsSkip)()('digit', /\d/y)()
 
-      const letter = token()()('letter', /[a-z]/yi)()
+      const letter = token(wsSkip)()('letter', /[a-z]/yi)()
 
       const expr = compose('expr',
         digit,
