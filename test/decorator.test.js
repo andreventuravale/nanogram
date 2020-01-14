@@ -1,14 +1,14 @@
 const { expect } = require('chai')
 
-const hide = require('../src/decorator/hide')
+const hidden = require('../src/decorator/hidden')
 
 suite('decorator', () => {
-  suite('hide', () => {
-    test('decorates the result with the hide flag set to true but does not change the original data', () => {
+  suite('hidden', () => {
+    test('decorates the result with the hidden flag set to true but does not change the original data', () => {
       const foo = {}
-      const bar = hide(foo)
+      const bar = hidden(foo)
       expect(foo).to.deep.eql({})
-      expect(bar).to.deep.eql({ hide: true })
+      expect(bar).to.deep.eql({ hidden: true })
     })
   })
 })
