@@ -247,11 +247,9 @@ suite('compose', () => {
     })
 
     test(`items flagged as hidden are considered found but their data won't be captured on composed data results`, () => {
-      const ws = token(all)(hidden)('ws', /\s*/y)()
-
       const digit = token(wsSkip)()('digit', /\d/y)()
-
       const letter = token(wsSkip)()('letter', /[a-z]/yi)()
+      const ws = token(all)(hidden)('ws', /\s*/y)()
 
       const expr = compose('expr',
         digit,
