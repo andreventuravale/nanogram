@@ -3,7 +3,7 @@ const { expect } = require('chai')
 const all = require('../src/offsetter/all')
 const skipper = require('../src/offsetter/skipper')
 
-suite('offsetters', () => {
+suite('offsetter', () => {
   suite('all', () => {
     test('pass along the offset without any modification', () => {
       expect(all('', 0)).to.deep.eql(0)
