@@ -1,12 +1,12 @@
 const chai = require('chai')
 const { expect } = chai
 
-const token = require('../src/token')
+const channel = require('../src/channel')
 const optional = require('../src/optional')
 
 suite('optional', () => {
   test('when missing it returns not found but with an ignored flag set to true', () => {
-    const foo = token()()('foo', /foo/y)()
+    const foo = channel()()('foo', /foo/y)()
 
     expect(
       foo('foo', 0)
@@ -41,7 +41,7 @@ suite('optional', () => {
   })
 
   test('when found the result is just passed along from the original element', () => {
-    const foo = token()()('foo', /foo/y)()
+    const foo = channel()()('foo', /foo/y)()
 
     expect(
       foo('foo', 0)

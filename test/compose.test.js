@@ -4,7 +4,7 @@ const compose = require('../src/compose')
 const hidden = require('../src/decorator/hidden')
 const list = require('../src/list')
 const optional = require('../src/optional')
-const token = require('../src/token')
+const channel = require('../src/channel')
 const noWhitespace = require('../src/offsetter/noWhitespace')
 
 const { expect } = chai
@@ -12,11 +12,11 @@ const { expect } = chai
 suite('compose', () => {
   suite('success cases', () => {
     test('two occurrences on same item are indexed', () => {
-      const number = token(noOffset)()('num', /\d+/y)()
+      const number = channel()(noOffset)('num', /\d+/y)()
 
       const expr = compose('expr',
         number,
-        token(noOffset)()('op', /\+/y)(),
+        channel()(noOffset)('op', /\+/y)(),
         number
       )()
 
@@ -36,13 +36,13 @@ suite('compose', () => {
     })
 
     test('more than two occurrences on same item are indexed', () => {
-      const number = token(noOffset)()('num', /\d+/y)()
+      const number = channel()(noOffset)('num', /\d+/y)()
 
       const expr = compose('expr',
         number,
-        token(noOffset)()('op', /\+/y)(),
+        channel()(noOffset)('op', /\+/y)(),
         number,
-        token(noOffset)()('op', /=/y)(),
+        channel()(noOffset)('op', /=/y)(),
         number
       )()
 
@@ -64,9 +64,9 @@ suite('compose', () => {
     })
 
     test('single occurrence of an item is not indexed', () => {
-      const name = token(noOffset)()('name', /\w+/y)()
-      const ws = token(noOffset)()('ws', / +/y)()
-      const surname = token(noOffset)()('surname', /\w+/y)()
+      const name = channel()(noOffset)('name', /\w+/y)()
+      const ws = channel()(noOffset)('ws', / +/y)()
+      const surname = channel()(noOffset)('surname', /\w+/y)()
 
       const fullName = compose('fullName',
         name,
@@ -91,9 +91,9 @@ suite('compose', () => {
 
     suite('does not stop on a item marked as ignored', () => {
       test('in begin', () => {
-        const name = token(noOffset)()('name', /\w+/y)()
-        const space = token(noOffset)()('space', / /y)()
-        const surname = token(noOffset)()('surname', /\w+/y)()
+        const name = channel()(noOffset)('name', /\w+/y)()
+        const space = channel()(noOffset)('space', / /y)()
+        const surname = channel()(noOffset)('surname', /\w+/y)()
 
         const fullName = compose('fullName',
           optional(name),
@@ -116,10 +116,10 @@ suite('compose', () => {
       })
 
       test('in the middle', () => {
-        const name = token(noOffset)()('name', /\w+/y)()
-        const colon = token(noOffset)()('colon', /:/y)()
-        const space = token(noOffset)()('space', / */y)()
-        const surname = token(noOffset)()('surname', /\w+/y)()
+        const name = channel()(noOffset)('name', /\w+/y)()
+        const colon = channel()(noOffset)('colon', /:/y)()
+        const space = channel()(noOffset)('space', / */y)()
+        const surname = channel()(noOffset)('surname', /\w+/y)()
 
         const fullName = compose('fullName',
           name,
@@ -144,9 +144,9 @@ suite('compose', () => {
       })
 
       test('in the end', () => {
-        const name = token(noOffset)()('name', /\w+/y)()
-        const space = token(noOffset)()('space', / /y)()
-        const surname = token(noOffset)()('surname', /\w+/y)()
+        const name = channel()(noOffset)('name', /\w+/y)()
+        const space = channel()(noOffset)('space', / /y)()
+        const surname = channel()(noOffset)('surname', /\w+/y)()
 
         const fullName = compose('fullName',
           name,
@@ -170,8 +170,8 @@ suite('compose', () => {
     })
 
     test('many successed ignorables at end', () => {
-      const name = token(noOffset)()('name', /\w+/y)()
-      const space = token(noOffset)()('space', / /y)()
+      const name = channel()(noOffset)('name', /\w+/y)()
+      const space = channel()(noOffset)('space', / /y)()
       const surname = list('surname', name, space)()
 
       const fullName = compose('fullName',
@@ -204,11 +204,11 @@ suite('compose', () => {
     })
 
     test('custom transformation', () => {
-      const number = token(noOffset)()('num', /\d+/y)(num => Number(num))
+      const number = channel()(noOffset)('num', /\d+/y)(num => Number(num))
 
       const untransformed = compose('sum',
         number,
-        token(noOffset)()('op', /\+/y)(),
+        channel()(noOffset)('op', /\+/y)(),
         number
       )
 
@@ -226,8 +226,8 @@ suite('compose', () => {
     })
 
     test('custom transformation', () => {
-      const number = token(noOffset)()('num', /\d+/y)(num => Number(num))
-      const ws = token(noOffset)()('ws', / +/y)()
+      const number = channel()(noOffset)('num', /\d+/y)(num => Number(num))
+      const ws = channel()(noOffset)('ws', / +/y)()
       const numberList = list('numList', number, ws)
       const oddNumberList = numberList(list => list.filter(num => num.data % 2))
 
@@ -247,9 +247,9 @@ suite('compose', () => {
     })
 
     test(`items flagged as hidden are considered found but their data won't be captured on composed data results`, () => {
-      const digit = token(noWhitespace)()('digit', /\d/y)()
-      const letter = token(noWhitespace)()('letter', /[a-z]/yi)()
-      const ws = token(noOffset)(hidden)('ws', /\s*/y)()
+      const digit = channel()(noWhitespace)('digit', /\d/y)()
+      const letter = channel()(noWhitespace)('letter', /[a-z]/yi)()
+      const ws = channel(hidden)(noOffset)('ws', /\s*/y)()
 
       const expr = compose('expr',
         digit,
@@ -287,11 +287,11 @@ suite('compose', () => {
 
   suite('fail cases', () => {
     test('partial matching should generate an error', () => {
-      const ws = token(noOffset)()('ws', /\s*/y)()
+      const ws = channel()(noOffset)('ws', /\s*/y)()
 
-      const digit = token(noOffset)()('digit', /\d/y)()
+      const digit = channel()(noOffset)('digit', /\d/y)()
 
-      const letter = token(noOffset)()('letter', /[a-z]/yi)()
+      const letter = channel()(noOffset)('letter', /[a-z]/yi)()
 
       const expr = compose('expr',
         ws,
@@ -331,7 +331,7 @@ suite('compose', () => {
     })
 
     test('empty input should generate an error', () => {
-      const number = token(noOffset)()('digit', /\d/y)()
+      const number = channel()(noOffset)('digit', /\d/y)()
 
       const expr = compose('expr',
         number
@@ -357,11 +357,11 @@ suite('compose', () => {
     })
 
     test('custom transformation', () => {
-      const number = token(noOffset)()('num', /\d+/y)()
+      const number = channel()(noOffset)('num', /\d+/y)()
 
       const untransformed = compose('sum',
         number,
-        token(noOffset)()('op', /\+/y)(),
+        channel()(noOffset)('op', /\+/y)(),
         number
       )
 
@@ -388,7 +388,7 @@ suite('compose', () => {
 
   test('type resulting function name is equal to the type', () => {
     const untransformed = compose('num',
-      token(noOffset)()('num', /(\d+)/y)()
+      channel()(noOffset)('num', /(\d+)/y)()
     )
 
     expect(untransformed.name).to.deep.eql('num')
@@ -399,7 +399,7 @@ suite('compose', () => {
   })
 
   // test('is curriable', () => {
-  //   const untransformed = compose('num', token(allInput)('num', /\d+/y)())
+  //   const untransformed = compose('num', channel(allInput)('num', /\d+/y)())
 
   //   expect(
   //     untransformed()('1', 0)

@@ -6,7 +6,7 @@ const noOffset = require('./offsetter/noOffset')
 const noWhitespace = require('./offsetter/noWhitespace')
 const optional = require('./optional')
 const skipper = require('./offsetter/skipper')
-const token = require('./token')
+const channel = require('./channel')
 
 module.exports = {
   choose,
@@ -17,5 +17,5 @@ module.exports = {
   noWhitespace,
   optional,
   skipper,
-  token
+  channel
 }

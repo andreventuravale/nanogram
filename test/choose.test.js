@@ -1,6 +1,6 @@
 const chai = require('chai')
 const choose = require('../src/choose')
-const token = require('../src/token')
+const channel = require('../src/channel')
 
 const { expect } = chai
 
@@ -8,9 +8,9 @@ suite('choice', () => {
   test('peeks an option given an list', () => {
     const choice = choose(
       'fruit',
-      token()()('orange', /orange/y)(),
-      token()()('apple', /apple/y)(),
-      token()()('watermelon', /watermelon/y)()
+      channel()()('orange', /orange/y)(),
+      channel()()('apple', /apple/y)(),
+      channel()()('watermelon', /watermelon/y)()
     )()
 
     const result = choice('orange', 0)
@@ -33,9 +33,9 @@ suite('choice', () => {
   test('fail to peek an option', () => {
     const choice = choose(
       'fruit',
-      token()()('orange', /orange/y)(),
-      token()()('apple', /apple/y)(),
-      token()()('watermelon', /watermelon/y)()
+      channel()()('orange', /orange/y)(),
+      channel()()('apple', /apple/y)(),
+      channel()()('watermelon', /watermelon/y)()
     )()
 
     const result = choice('strawberry', 0)
@@ -52,9 +52,9 @@ suite('choice', () => {
   test('transformation on both success and fail', () => {
     const choice = choose(
       'fruit',
-      token()()('orange', /orange/y)(),
-      token()()('apple', /apple/y)(),
-      token()()('watermelon', /watermelon/y)()
+      channel()()('orange', /orange/y)(),
+      channel()()('apple', /apple/y)(),
+      channel()()('watermelon', /watermelon/y)()
     )(({ data }, { found }) => found ? data : 'banana')
 
     expect(

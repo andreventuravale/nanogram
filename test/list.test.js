@@ -1,12 +1,12 @@
 const { expect } = require('chai')
 const list = require('../src/list')
-const token = require('../src/token')
+const channel = require('../src/channel')
 
 suite('list', () => {
   suite('success cases', () => {
     test('finds a comma separated list of numbers', () => {
-      const number = token()()('num', /\d/y)()
-      const comma = token()()('comma', /,/y)()
+      const number = channel()()('num', /\d/y)()
+      const comma = channel()()('comma', /,/y)()
 
       const numberList = list('list', number, comma)()
 
@@ -44,8 +44,8 @@ suite('list', () => {
     })
 
     test('finds two numbers separated by a comma', () => {
-      const number = token()()('num', /\d/y)()
-      const comma = token()()('comma', /,/y)()
+      const number = channel()()('num', /\d/y)()
+      const comma = channel()()('comma', /,/y)()
 
       const numberList = list('list', number, comma)()
 
@@ -76,8 +76,8 @@ suite('list', () => {
     })
 
     test('finds a single number without the need of a separator', () => {
-      const number = token()()('num', /\d/y)()
-      const comma = token()()('comma', /,/y)()
+      const number = channel()()('num', /\d/y)()
+      const comma = channel()()('comma', /,/y)()
 
       const numberList = list('list', number, comma)()
 
@@ -101,8 +101,8 @@ suite('list', () => {
     })
 
     test('ignores the last separator with no subsequent element', () => {
-      const number = token()()('num', /\d/y)()
-      const comma = token()()('comma', /,/y)()
+      const number = channel()()('num', /\d/y)()
+      const comma = channel()()('comma', /,/y)()
 
       const numberList = list('list', number, comma)()
 
@@ -133,8 +133,8 @@ suite('list', () => {
     })
 
     test('custom transformation - mapping data', () => {
-      const number = token()()('num', /\d/y)()
-      const comma = token()()('comma', /,/y)()
+      const number = channel()()('num', /\d/y)()
+      const comma = channel()()('comma', /,/y)()
 
       const typedNumberList = list('list', number, comma)(
         list => list.map(num => Number(num.data))
@@ -156,8 +156,8 @@ suite('list', () => {
     })
 
     test('custom transformation - mapping data and reducing', () => {
-      const number = token()()('num', /\d/y)()
-      const comma = token()()('comma', /,/y)()
+      const number = channel()()('num', /\d/y)()
+      const comma = channel()()('comma', /,/y)()
 
       const typedNumberList = list('list', number, comma)(
         list => list
@@ -179,8 +179,8 @@ suite('list', () => {
 
   suite('fail cases', () => {
     test('partial matching should generate an error and be treated as not found', () => {
-      const number = token()()('num', /\d/y)()
-      const comma = token()()('comma', /,/y)()
+      const number = channel()()('num', /\d/y)()
+      const comma = channel()()('comma', /,/y)()
 
       const numberList = list('list', number, comma)()
 
@@ -206,8 +206,8 @@ suite('list', () => {
     })
 
     test('empty input should generate an error and be treated as not found', () => {
-      const number = token()()('num', /\d/y)()
-      const comma = token()()('comma', /,/y)()
+      const number = channel()()('num', /\d/y)()
+      const comma = channel()()('comma', /,/y)()
 
       const numberList = list('list', number, comma)()
 
@@ -231,8 +231,8 @@ suite('list', () => {
   })
 
   test('all intermediate functions version have the name equals to the type', () => {
-    const number = token()()('num', /\d/y)()
-    const comma = token()()('comma', /,/y)()
+    const number = channel()()('num', /\d/y)()
+    const comma = channel()()('comma', /,/y)()
 
     const untransformed = list('numberList', number, comma)
 

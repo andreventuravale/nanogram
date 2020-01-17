@@ -1,7 +1,7 @@
 const noOffset = require('./offsetter/noOffset')
 
-module.exports = function (offsetter = noOffset) {
-  return function (decorator = info => info) {
+module.exports = function (decorator = info => info) {
+  return function (offsetter = noOffset) {
     return function (type, regex) {
       if (typeof type !== 'string' || !/^[\w^\d]\w+$/.test(type)) {
         throw new Error('The type must be a string and satisfy the following regex: /^[\\w^\\d]\\w+$/.')
