@@ -119,7 +119,8 @@ suite('v2', () => {
 
     const result = digits('123', 0)
 
-    expect(result).to.eql({ found: true,
+    expect(result).to.eql({
+      found: true,
       from: 0,
       to: 3,
       data: [
@@ -137,7 +138,8 @@ suite('v2', () => {
 
     const result = digits('1', 0)
 
-    expect(result).to.eql({ found: true,
+    expect(result).to.eql({
+      found: true,
       from: 0,
       to: 1,
       data: [
@@ -153,12 +155,11 @@ suite('v2', () => {
 
     const result = digits('', 0)
 
-    expect(result).to.eql({ found: true,
+    expect(result).to.eql({
+      found: false,
       from: 0,
       to: 0,
-      data: [
-        { found: false, from: 0, to: 0, data: '1' }
-      ]
+      data: []
     })
   })
 
