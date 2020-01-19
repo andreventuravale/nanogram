@@ -39,6 +39,21 @@ const match = (regex) => {
   }
 }
 
+const repeat = (element) => {
+  return (input, offset) => {
+    const data = []
+    const first = element(input, offset)
+    let last = first
+
+    while (last.found) {
+      data.push(last)
+      last = element(input, last.to)
+    }
+
+    return { found: data.length > 0, from: offset, to: last.to, data }
+  }
+}
+
 const list = (element, separator) => {
   return (input, offset) => {
     const data = []
@@ -95,6 +110,56 @@ suite('v2', () => {
     const result = ws('a', 0)
 
     expect(result).to.eql({ found: false, from: 0, to: 0, data: '' })
+  })
+
+  test('repeat: finds many inputs', () => {
+    const digit = match(/\d/)
+
+    const digits = repeat(digit)
+
+    const result = digits('123', 0)
+
+    expect(result).to.eql({ found: true,
+      from: 0,
+      to: 3,
+      data: [
+        { found: true, from: 0, to: 1, data: '1' },
+        { found: true, from: 1, to: 2, data: '2' },
+        { found: true, from: 2, to: 3, data: '3' }
+      ]
+    })
+  })
+
+  test('repeat: finds a single input', () => {
+    const digit = match(/\d/)
+
+    const digits = repeat(digit)
+
+    const result = digits('1', 0)
+
+    expect(result).to.eql({ found: true,
+      from: 0,
+      to: 1,
+      data: [
+        { found: true, from: 0, to: 1, data: '1' }
+      ]
+    })
+  })
+
+  test('repeat: does not find any input', () => {
+    const digit = match(/\d/)
+
+    const digits = repeat(digit)
+
+    const result = digits('', 0)
+
+    expect(result).to.eql({ found: true,
+      from: 0,
+      to: 0,
+      data: [
+        { found: false, from: 0, to: 0, data: '1' }
+      ]
+    })
   })
 
   test('sequence: finds a match', () => {
