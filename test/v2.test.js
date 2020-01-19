@@ -1,83 +1,6 @@
 const { expect } = require('chai')
 
-const sequence = (...args) => {
-  return (input, offset) => {
-    const sequence = args.slice(0)
-    const data = []
-
-    let result = sequence.shift()(input, offset)
-
-    while (result.found && sequence.length) {
-      data.push(result)
-      result = sequence.shift()(input, result.to)
-    }
-
-    data.push(result)
-
-    return {
-      found: result.found && sequence.length === 0,
-      from: offset,
-      to: result.to,
-      data
-    }
-  }
-}
-
-const match = (regex) => {
-  regex = /[yg]/.test(regex.flags) ? regex : new RegExp(regex.source, `y${regex.flags}`)
-
-  return (input, offset) => {
-    regex.lastIndex = offset
-
-    const result = input.match(regex)
-
-    if (result) {
-      return { found: true, from: offset, to: offset + result[0].length, data: result[0] }
-    }
-
-    return { found: false, from: offset, to: offset, data: '' }
-  }
-}
-
-const repeat = (element) => {
-  return (input, offset) => {
-    const data = []
-    const first = element(input, offset)
-    let last = first
-
-    while (last.found) {
-      data.push(last)
-      last = element(input, last.to)
-    }
-
-    return { found: data.length > 0, from: offset, to: last.to, data }
-  }
-}
-
-const list = (element, separator) => {
-  return (input, offset) => {
-    const data = []
-    const first = element(input, offset)
-    let last = first
-    let tail = first
-
-    while (last.found) {
-      tail = last
-
-      data.push(tail)
-
-      const sep = separator(input, last.to)
-
-      if (sep.found) {
-        last = element(input, sep.to)
-      } else {
-        break
-      }
-    }
-
-    return { found: data.length > 0, from: offset, to: tail.to, data }
-  }
-}
+const { choose, list, match, optional, repeat, sequence } = require('../src')
 
 suite('v2', () => {
   test('match: finds an input', () => {
@@ -263,5 +186,58 @@ suite('v2', () => {
         { found: true, from: 4, to: 5, data: '3' }
       ]
     })
+  })
+
+  test('optional: finds an input', () => {
+    const ws = match(/\s+/)
+
+    const optWs = optional(ws)
+
+    const result = optWs(' ', 0)
+
+    expect(result).to.eql({ found: true, from: 0, to: 1, data: ' ' })
+  })
+
+  test('optional: does not find an input', () => {
+    const ws = match(/\s+/)
+
+    const optWs = optional(ws)
+
+    const result = optWs('', 0)
+
+    expect(result).to.eql({ found: true, from: 0, to: 0, data: '' })
+  })
+
+  test('choose: finds an input for the first option', () => {
+    const digit = match(/\d/)
+    const word = match(/\w/)
+
+    const options = choose(digit, word)
+
+    const result = options('1', 0)
+
+    expect(result).to.eql({ found: true, from: 0, to: 1, data: '1' })
+  })
+
+  test('choose: finds an input for the last option', () => {
+    const digit = match(/\d/)
+    const word = match(/\w/)
+
+    const options = choose(digit, word)
+
+    const result = options('a', 0)
+
+    expect(result).to.eql({ found: true, from: 0, to: 1, data: 'a' })
+  })
+
+  test('choose: does not find an input at all', () => {
+    const digit = match(/\d/)
+    const word = match(/\w/)
+
+    const options = choose(digit, word)
+
+    const result = options(';', 0)
+
+    expect(result).to.eql({ found: false, from: 0, to: 0, data: undefined })
   })
 })
