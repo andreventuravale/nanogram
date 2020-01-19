@@ -1,6 +1,20 @@
-const sequence = (...args) => {
-  return (input, offset) => {
-    const sequence = args.slice(0)
+const sequence = (...args1) => {
+  let processor
+
+  const final = (...args2) => {
+    if (args2.length === 1 && typeof args2[0] === 'object') {
+      processor = args2[0]
+      return final
+    }
+
+    if (processor && processor.pre && processor.pre.offset) {
+      args2[1] = processor.pre.offset(args2[0], args2[1])
+    }
+
+    const input = args2[0]
+    const offset = args2[1]
+
+    const sequence = args1.slice(0)
     const data = []
 
     let result = sequence.shift()(input, offset)
@@ -19,6 +33,8 @@ const sequence = (...args) => {
       data
     }
   }
+
+  return final
 }
 
 const match = (regex) => {

@@ -240,4 +240,36 @@ suite('v2', () => {
 
     expect(result).to.eql({ found: false, from: 0, to: 0, data: undefined })
   })
+
+  test.only('sequence: adds a preprocessor to skip whitespace characters', () => {
+    const name = match(/\w+/)
+    const ws = match(/\s+/)
+    const age = match(/\d+/)
+
+    const whitespaceSkipper = (input, offset) => {
+      while (/\s/.test(input[offset])) {
+        offset++
+      }
+      return offset
+    }
+
+    const nameAndAge = sequence(name, ws, age)({
+      pre: {
+        offset: whitespaceSkipper
+      }
+    })
+
+    const result = nameAndAge(' foo 30', 0)
+
+    expect(result).to.eql({
+      found: true,
+      from: 1,
+      to: 7,
+      data: [
+        { found: true, from: 1, to: 4, data: 'foo' },
+        { found: true, from: 4, to: 5, data: ' ' },
+        { found: true, from: 5, to: 7, data: '30' }
+      ]
+    })
+  })
 })
