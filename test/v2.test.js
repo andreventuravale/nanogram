@@ -1,6 +1,8 @@
 const { expect } = require('chai')
 
-const { choose, list, match, optional, repeat, sequence } = require('../src')
+const {
+  choose, list, match, optional, repeat, sequence
+} = require('../src')
 
 suite('v2', () => {
   test('match: finds an input', () => {
@@ -8,7 +10,9 @@ suite('v2', () => {
 
     const result = ws(' ', 0)
 
-    expect(result).to.eql({ found: true, from: 0, to: 1, data: ' ' })
+    expect(result).to.eql({
+      found: true, from: 0, to: 1, data: ' '
+    })
   })
 
   test('match: finds an input larger than 1', () => {
@@ -16,7 +20,9 @@ suite('v2', () => {
 
     const result = ws('  ', 0)
 
-    expect(result).to.eql({ found: true, from: 0, to: 2, data: '  ' })
+    expect(result).to.eql({
+      found: true, from: 0, to: 2, data: '  '
+    })
   })
 
   test('match: stateless regex does not loop indefinitely', () => {
@@ -24,7 +30,9 @@ suite('v2', () => {
 
     const result = digit('111', 0)
 
-    expect(result).to.eql({ found: true, from: 0, to: 1, data: '1' })
+    expect(result).to.eql({
+      found: true, from: 0, to: 1, data: '1'
+    })
   })
 
   test('match: does not find an input', () => {
@@ -32,7 +40,9 @@ suite('v2', () => {
 
     const result = ws('a', 0)
 
-    expect(result).to.eql({ found: false, from: 0, to: 0, data: '' })
+    expect(result).to.eql({
+      found: false, from: 0, to: 0, data: ''
+    })
   })
 
   test('repeat: finds many inputs', () => {
@@ -47,9 +57,15 @@ suite('v2', () => {
       from: 0,
       to: 3,
       data: [
-        { found: true, from: 0, to: 1, data: '1' },
-        { found: true, from: 1, to: 2, data: '2' },
-        { found: true, from: 2, to: 3, data: '3' }
+        {
+          found: true, from: 0, to: 1, data: '1'
+        },
+        {
+          found: true, from: 1, to: 2, data: '2'
+        },
+        {
+          found: true, from: 2, to: 3, data: '3'
+        }
       ]
     })
   })
@@ -66,7 +82,9 @@ suite('v2', () => {
       from: 0,
       to: 1,
       data: [
-        { found: true, from: 0, to: 1, data: '1' }
+        {
+          found: true, from: 0, to: 1, data: '1'
+        }
       ]
     })
   })
@@ -97,9 +115,15 @@ suite('v2', () => {
       from: 0,
       to: 6,
       data: [
-        { found: true, from: 0, to: 3, data: 'foo' },
-        { found: true, from: 3, to: 4, data: ' ' },
-        { found: true, from: 4, to: 6, data: '30' }
+        {
+          found: true, from: 0, to: 3, data: 'foo'
+        },
+        {
+          found: true, from: 3, to: 4, data: ' '
+        },
+        {
+          found: true, from: 4, to: 6, data: '30'
+        }
       ]
     })
   })
@@ -115,7 +139,9 @@ suite('v2', () => {
       from: 0,
       to: 0,
       data: [
-        { found: false, from: 0, to: 0, data: '' }
+        {
+          found: false, from: 0, to: 0, data: ''
+        }
       ]
     })
   })
@@ -131,9 +157,15 @@ suite('v2', () => {
       from: 0,
       to: 4,
       data: [
-        { found: true, from: 0, to: 3, data: 'foo' },
-        { found: true, from: 3, to: 4, data: ' ' },
-        { found: false, from: 4, to: 4, data: '' }
+        {
+          found: true, from: 0, to: 3, data: 'foo'
+        },
+        {
+          found: true, from: 3, to: 4, data: ' '
+        },
+        {
+          found: false, from: 4, to: 4, data: ''
+        }
       ]
     })
   })
@@ -149,9 +181,15 @@ suite('v2', () => {
       from: 0,
       to: 5,
       data: [
-        { found: true, from: 0, to: 1, data: '1' },
-        { found: true, from: 2, to: 3, data: '2' },
-        { found: true, from: 4, to: 5, data: '3' }
+        {
+          found: true, from: 0, to: 1, data: '1'
+        },
+        {
+          found: true, from: 2, to: 3, data: '2'
+        },
+        {
+          found: true, from: 4, to: 5, data: '3'
+        }
       ]
     })
   })
@@ -181,9 +219,15 @@ suite('v2', () => {
       from: 0,
       to: 5,
       data: [
-        { found: true, from: 0, to: 1, data: '1' },
-        { found: true, from: 2, to: 3, data: '2' },
-        { found: true, from: 4, to: 5, data: '3' }
+        {
+          found: true, from: 0, to: 1, data: '1'
+        },
+        {
+          found: true, from: 2, to: 3, data: '2'
+        },
+        {
+          found: true, from: 4, to: 5, data: '3'
+        }
       ]
     })
   })
@@ -195,7 +239,9 @@ suite('v2', () => {
 
     const result = optWs(' ', 0)
 
-    expect(result).to.eql({ found: true, from: 0, to: 1, data: ' ' })
+    expect(result).to.eql({
+      found: true, from: 0, to: 1, data: ' '
+    })
   })
 
   test('optional: does not find an input', () => {
@@ -205,7 +251,9 @@ suite('v2', () => {
 
     const result = optWs('', 0)
 
-    expect(result).to.eql({ found: true, from: 0, to: 0, data: '' })
+    expect(result).to.eql({
+      found: true, from: 0, to: 0, data: ''
+    })
   })
 
   test('choose: finds an input for the first option', () => {
@@ -216,7 +264,9 @@ suite('v2', () => {
 
     const result = options('1', 0)
 
-    expect(result).to.eql({ found: true, from: 0, to: 1, data: '1' })
+    expect(result).to.eql({
+      found: true, from: 0, to: 1, data: '1'
+    })
   })
 
   test('choose: finds an input for the last option', () => {
@@ -227,7 +277,9 @@ suite('v2', () => {
 
     const result = options('a', 0)
 
-    expect(result).to.eql({ found: true, from: 0, to: 1, data: 'a' })
+    expect(result).to.eql({
+      found: true, from: 0, to: 1, data: 'a'
+    })
   })
 
   test('choose: does not find an input at all', () => {
@@ -238,7 +290,9 @@ suite('v2', () => {
 
     const result = options(';', 0)
 
-    expect(result).to.eql({ found: false, from: 0, to: 0, data: undefined })
+    expect(result).to.eql({
+      found: false, from: 0, to: 0, data: undefined
+    })
   })
 
   test.only('sequence: adds a preprocessor to skip whitespace characters', () => {
@@ -266,9 +320,15 @@ suite('v2', () => {
       from: 1,
       to: 7,
       data: [
-        { found: true, from: 1, to: 4, data: 'foo' },
-        { found: true, from: 4, to: 5, data: ' ' },
-        { found: true, from: 5, to: 7, data: '30' }
+        {
+          found: true, from: 1, to: 4, data: 'foo'
+        },
+        {
+          found: true, from: 4, to: 5, data: ' '
+        },
+        {
+          found: true, from: 5, to: 7, data: '30'
+        }
       ]
     })
   })
