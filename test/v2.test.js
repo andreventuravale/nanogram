@@ -73,7 +73,7 @@ suite('v2', () => {
     expect(result).to.eql({ found: true, from: 0, to: 1, data: ' ' })
   })
 
-  test.only('match: finds an input larger than 1', () => {
+  test('match: finds an input larger than 1', () => {
     const ws = match(/\s+/)
 
     const result = ws('  ', 0)
@@ -97,7 +97,7 @@ suite('v2', () => {
     expect(result).to.eql({ found: false, from: 0, to: 0, data: '' })
   })
 
-  test.only('sequence: finds a match', () => {
+  test('sequence: finds a match', () => {
     const name = match(/\w+/)
     const ws = match(/\s+/)
     const age = match(/\d+/)
@@ -115,7 +115,7 @@ suite('v2', () => {
     })
   })
 
-  test.only('sequence: does not find the first match', () => {
+  test('sequence: does not find the first match', () => {
     const name = match(/\w+/)
     const ws = match(/\s+/)
     const age = match(/\d+/)
@@ -131,7 +131,7 @@ suite('v2', () => {
     })
   })
 
-  test.only('sequence: does not find the last match', () => {
+  test('sequence: does not find the last match', () => {
     const name = match(/\w+/)
     const ws = match(/\s+/)
     const age = match(/\d+/)
