@@ -3,24 +3,21 @@ const { expect } = require('chai')
 const sequence = (...args) => {
   return (input, offset) => {
     const sequence = args.slice(0)
-    let to = offset
     const data = []
 
-    let result = sequence.shift()(input, to)
+    let result = sequence.shift()(input, offset)
 
     while (result.found && sequence.length) {
       data.push(result)
-      to = result.to
-      result = sequence.shift()(input, to)
+      result = sequence.shift()(input, result.to)
     }
 
     data.push(result)
-    to = result.to
 
     return {
       found: result.found && sequence.length === 0,
       from: offset,
-      to,
+      to: result.to,
       data
     }
   }
