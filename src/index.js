@@ -103,30 +103,32 @@ const repeat = feature(
   }
 )
 
-const list = (element, separator) => (input, offset) => {
-  const data = []
-  const first = element(input, offset)
-  let last = first
-  let tail = first
+const list = feature(
+  (input, offset, element, separator) => {
+    const data = []
+    const first = element(input, offset)
+    let last = first
+    let tail = first
 
-  while (last.found) {
-    tail = last
+    while (last.found) {
+      tail = last
 
-    data.push(tail)
+      data.push(tail)
 
-    const sep = separator(input, last.to)
+      const sep = separator(input, last.to)
 
-    if (sep.found) {
-      last = element(input, sep.to)
-    } else {
-      break
+      if (sep.found) {
+        last = element(input, sep.to)
+      } else {
+        break
+      }
+    }
+
+    return {
+      found: data.length > 0, from: offset, to: tail.to, data
     }
   }
-
-  return {
-    found: data.length > 0, from: offset, to: tail.to, data
-  }
-}
+)
 
 const optional = feature(
   (input, offset, element) => {
@@ -157,11 +159,11 @@ const choose = feature(
 )
 
 module.exports = {
+  choose,
   match,
   optional,
   repeat,
   sequence,
 
-  choose,
   list
 }

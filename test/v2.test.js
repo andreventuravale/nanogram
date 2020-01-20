@@ -348,6 +348,30 @@ suite('v2', () => {
     })
   })
 
+  test('optional: adds a preprocessor to skip whitespace characters', () => {
+    const digits = match(/\d+/)
+    const comma = match(/,/)
+    const digitList = list({ pre: { offset: whitespaceSkipper } })(digits, comma)
+    const result = digitList('  1,2,3', 0)
+
+    expect(result).to.eql({
+      found: true,
+      from: 2,
+      to: 7,
+      data: [
+        {
+          found: true, from: 2, to: 3, data: '1'
+        },
+        {
+          found: true, from: 4, to: 5, data: '2'
+        },
+        {
+          found: true, from: 6, to: 7, data: '3'
+        }
+      ]
+    })
+  })
+
   test('optional: finds an input', () => {
     const ws = match(/\s+/)
 
