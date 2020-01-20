@@ -8,24 +8,14 @@ const feature = custom => {
               if (processor.pre && processor.pre.offset) {
                 offset = processor.pre.offset(input, offset)
               }
-
               const result = custom(input, offset, ...args1)
-
               result.data = transformer(result.data, result)
-
               return result
             }
           } else {
             const input = transformer
-            let offset = args2[0]
-
-            if (processor.pre && processor.pre.offset) {
-              offset = processor.pre.offset(input, offset)
-            }
-
-            const result = custom(input, offset, ...args1)
-
-            return result
+            const offset = processor.pre && processor.pre.offset ? processor.pre.offset(input, args2[0]) : args2[0]
+            return custom(input, offset, ...args1)
           }
         }
       }
@@ -34,18 +24,13 @@ const feature = custom => {
         if (typeof transformer === 'function' && args2.length === 0) {
           return (input, offset) => {
             const result = custom(input, offset, processor, ...args)
-
             result.data = transformer(result.data, result)
-
             return result
           }
         } else {
           const input = transformer
           const offset = args2[0]
-
-          const result = custom(input, offset, processor, ...args)
-
-          return result
+          return custom(input, offset, processor, ...args)
         }
       }
     }

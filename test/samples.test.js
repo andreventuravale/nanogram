@@ -13,8 +13,8 @@ suite('v2 > samples', () => {
     const choose = nanogram.choose
     const list = nanogram.list
     // const match = nanogram.match
-    const optional = nanogram.optional
-    const repeat = nanogram.repeat
+    // const optional = nanogram.optional
+    // const repeat = nanogram.repeat
     const sequence = nanogram.sequence
 
     // const choose = nanogram.choose(processor)
