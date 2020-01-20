@@ -1,13 +1,12 @@
 const feature = custom => {
   return (...args) => {
+    let featureArgs
     let processor
-    let sequence
     let transformer = data => data
 
     const step1 = (...args1) => {
       const step2 = (...args2) => {
         const step3 = (...args3) => {
-          const data = []
           const input = args3[0]
           let offset = args3[1]
 
@@ -15,7 +14,7 @@ const feature = custom => {
             offset = processor.pre.offset(input, offset)
           }
 
-          const result = custom(sequence, input, offset)
+          const result = custom(input, offset, ...featureArgs)
 
           result.data = transformer(result.data, result)
 
@@ -30,11 +29,11 @@ const feature = custom => {
         }
       }
 
-      if (args1.length === 1 && typeof args1[0] === 'object') {
+      if (args1.length === 1 && ((typeof args1[0] === 'object') && !(args1[0] instanceof RegExp))) {
         processor = args1[0]
         return step1
       } else {
-        sequence = args1
+        featureArgs = args1
         return step2
       }
     }
@@ -44,7 +43,7 @@ const feature = custom => {
 }
 
 const sequence = feature(
-  (sequence, input, offset) => {
+  (input, offset, ...sequence) => {
     const data = []
     let itemResult = sequence.shift()(input, offset)
 
@@ -64,10 +63,10 @@ const sequence = feature(
   }
 )
 
-const match = (regex) => {
-  regex = /[yg]/.test(regex.flags) ? regex : new RegExp(regex.source, `y${regex.flags}`)
+const match = feature(
+  (input, offset, regex) => {
+    regex = /[yg]/.test(regex.flags) ? regex : new RegExp(regex.source, `y${regex.flags}`)
 
-  return (input, offset) => {
     regex.lastIndex = offset
 
     const result = input.match(regex)
@@ -82,7 +81,7 @@ const match = (regex) => {
       found: false, from: offset, to: offset, data: ''
     }
   }
-}
+)
 
 const repeat = element => (input, offset) => {
   const data = []

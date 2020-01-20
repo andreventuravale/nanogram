@@ -4,6 +4,12 @@ const {
   choose, list, match, optional, repeat, sequence
 } = require('../src')
 
+const whitespaceSkipper = (input, offset) => {
+  while (/\s/.test(input[offset])) offset++
+
+  return offset
+}
+
 suite('v2', () => {
   test('match: finds an input', () => {
     const ws = match(/\s+/)
@@ -42,6 +48,16 @@ suite('v2', () => {
 
     expect(result).to.eql({
       found: false, from: 0, to: 0, data: ''
+    })
+  })
+
+  test('match: adds a preprocessor to skip whitespace characters', () => {
+    const digit = match({ pre: { offset: whitespaceSkipper } })(/\d/)
+
+    const result = digit('  1', 0)
+
+    expect(result).to.eql({
+      found: true, from: 2, to: 3, data: '1'
     })
   })
 
@@ -175,17 +191,7 @@ suite('v2', () => {
     const ws = match(/\s+/)
     const age = match(/\d+/)
 
-    const whitespaceSkipper = (input, offset) => {
-      while (/\s/.test(input[offset])) offset++
-
-      return offset
-    }
-
-    const nameAndAge = sequence({
-      pre: {
-        offset: whitespaceSkipper
-      }
-    })(name, ws, age)
+    const nameAndAge = sequence({ pre: { offset: whitespaceSkipper } })(name, ws, age)
 
     const result = nameAndAge(' foo 30', 0)
 
