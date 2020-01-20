@@ -333,14 +333,14 @@ suite('v2', () => {
     })
   })
 
-  test('sequence: transforms the result', () => {
+  test('sequence: transforms the result by inverting name and age', () => {
     const name = match(/\w+/)
     const ws = match(/\s+/)
     const age = match(/\d+/)
 
     const nameAndAge = sequence(name, ws, age)(
-      ([name, , age], { found }) => {
-        return found && `${name.data},${age.data}`
+      ([name, ws, age], { found }) => {
+        return found && `${age.data}${ws.data}${name.data}`
       }
     )
 
@@ -350,7 +350,7 @@ suite('v2', () => {
       found: true,
       from: 0,
       to: 6,
-      data: `foo,30`
+      data: `30 foo`
     })
   })
 })
