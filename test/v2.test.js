@@ -334,7 +334,7 @@ suite('v2', () => {
     })
   })
 
-  test('list: ignores the last separator', () => {
+  test('list: configured to not consume an eventual trailing separator left alone', () => {
     const digits = match(/\d+/)
     const comma = match(/,/)
     const digitList = list(digits, comma)
@@ -344,6 +344,30 @@ suite('v2', () => {
       found: true,
       from: 0,
       to: 5,
+      data: [
+        {
+          found: true, from: 0, to: 1, data: '1'
+        },
+        {
+          found: true, from: 2, to: 3, data: '2'
+        },
+        {
+          found: true, from: 4, to: 5, data: '3'
+        }
+      ]
+    })
+  })
+
+  test('list: configured to consume an eventual trailing separator left alone', () => {
+    const digits = match(/\d+/)
+    const comma = match(/,/)
+    const digitList = list(digits, comma, { trailingSeparator: true })
+    const result = digitList('1,2,3,', 0)
+
+    expect(result).to.eql({
+      found: true,
+      from: 0,
+      to: 6,
       data: [
         {
           found: true, from: 0, to: 1, data: '1'

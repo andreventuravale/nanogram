@@ -104,18 +104,19 @@ const repeat = feature(
 )
 
 const list = feature(
-  (input, offset, element, separator) => {
+  (input, offset, element, separator, options) => {
     const data = []
     const first = element(input, offset)
     let last = first
     let tail = first
+    let sep
 
     while (last.found) {
       tail = last
 
       data.push(tail)
 
-      const sep = separator(input, last.to)
+      sep = separator(input, last.to)
 
       if (sep.found) {
         last = element(input, sep.to)
@@ -124,8 +125,11 @@ const list = feature(
       }
     }
 
+    const hasTrailingSep = sep && sep.found && sep.from >= tail.to
+    const consumeTrailingSep = options && options.trailingSeparator
+
     return {
-      found: data.length > 0, from: offset, to: tail.to, data
+      found: data.length > 0, from: offset, to: hasTrailingSep && consumeTrailingSep ? sep.to : tail.to, data
     }
   }
 )
@@ -160,10 +164,9 @@ const choose = feature(
 
 module.exports = {
   choose,
+  list,
   match,
   optional,
   repeat,
-  sequence,
-
-  list
+  sequence
 }
