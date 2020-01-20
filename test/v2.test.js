@@ -483,10 +483,10 @@ suite('v2', () => {
     const digit = match(/\d+/)
     const word = match(/\w+/)
 
-    const options = choose(digit, word)((data, { found }) => found ? data : Symbol.for('not_found'))
+    const options = choose(digit, word)((data, { found }) => found ? data : 'not_found')
 
     const result = options('#$%', 0)
 
-    expect(result).to.eql({ found: false, from: 0, to: 0, data: Symbol.for('not_found') })
+    expect(result).to.eql({ found: false, from: 0, to: 0, data: 'not_found' })
   })
 })
