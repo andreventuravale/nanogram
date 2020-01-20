@@ -1,58 +1,68 @@
-const sequence = (...args) => {
-  let processor
-  let sequence
-  let transformer = data => data
+const feature = custom => {
+  return (...args) => {
+    let processor
+    let sequence
+    let transformer = data => data
 
-  const step1 = (...args1) => {
-    const step2 = (...args2) => {
-      const step3 = (...args3) => {
-        const data = []
-        const input = args3[0]
-        let offset = args3[1]
+    const step1 = (...args1) => {
+      const step2 = (...args2) => {
+        const step3 = (...args3) => {
+          const data = []
+          const input = args3[0]
+          let offset = args3[1]
 
-        if (processor && processor.pre && processor.pre.offset) {
-          offset = processor.pre.offset(input, offset)
+          if (processor && processor.pre && processor.pre.offset) {
+            offset = processor.pre.offset(input, offset)
+          }
+
+          const result = custom(sequence, input, offset)
+
+          result.data = transformer(result.data, result)
+
+          return result
         }
 
-        let itemResult = sequence.shift()(input, offset)
-
-        while (itemResult.found && sequence.length) {
-          data.push(itemResult)
-          itemResult = sequence.shift()(input, itemResult.to)
+        if (args2.length === 1 && typeof args2[0] === 'function') {
+          transformer = args2[0]
+          return step3
+        } else {
+          return step3(...args2)
         }
-
-        data.push(itemResult)
-
-        const result = {
-          found: itemResult.found && sequence.length === 0,
-          from: offset,
-          to: itemResult.to
-        }
-
-        result.data = transformer(data, result)
-
-        return result
       }
 
-      if (args2.length === 1 && typeof args2[0] === 'function') {
-        transformer = args2[0]
-        return step3
+      if (args1.length === 1 && typeof args1[0] === 'object') {
+        processor = args1[0]
+        return step1
       } else {
-        return step3(...args2)
+        sequence = args1
+        return step2
       }
     }
 
-    if (args1.length === 1 && typeof args1[0] === 'object') {
-      processor = args1[0]
-      return step1
-    } else {
-      sequence = args1
-      return step2
+    return step1(...args)
+  }
+}
+
+const sequence = feature(
+  (sequence, input, offset) => {
+    const data = []
+    let itemResult = sequence.shift()(input, offset)
+
+    while (itemResult.found && sequence.length) {
+      data.push(itemResult)
+      itemResult = sequence.shift()(input, itemResult.to)
+    }
+
+    data.push(itemResult)
+
+    return {
+      found: itemResult.found && sequence.length === 0,
+      from: offset,
+      to: itemResult.to,
+      data
     }
   }
-
-  return step1(...args)
-}
+)
 
 const match = (regex) => {
   regex = /[yg]/.test(regex.flags) ? regex : new RegExp(regex.source, `y${regex.flags}`)
