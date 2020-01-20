@@ -83,6 +83,18 @@ suite('v2', () => {
     })
   })
 
+  test('match: transforms a not-found result', () => {
+    const digit = match(/\d/)
+
+    const typedDigit = digit((data, { found }) => !found && 'not_found')
+
+    const result = typedDigit('a', 0)
+
+    expect(result).to.eql({
+      found: false, from: 0, to: 0, data: 'not_found'
+    })
+  })
+
   test('repeat: finds many inputs', () => {
     const digit = match(/\d/)
 
@@ -145,6 +157,21 @@ suite('v2', () => {
       from: 0,
       to: 5,
       data: 15
+    })
+  })
+
+  test('repeat: transforms a not-found result', () => {
+    const digit = match(/\d/)
+
+    const sum = repeat(digit)((list, { found }) => !found && 'not_found')
+
+    const result = sum('abcde', 0)
+
+    expect(result).to.eql({
+      found: false,
+      from: 0,
+      to: 0,
+      data: 'not_found'
     })
   })
 
@@ -296,6 +323,27 @@ suite('v2', () => {
     })
   })
 
+  test('sequence: transforms a not-found result', () => {
+    const name = match(/\w+/)
+    const ws = match(/\s+/)
+    const age = match(/\d+/)
+
+    const nameAndAge = sequence(name, ws, age)(
+      (data, { found }) => {
+        return !found && 'not_found'
+      }
+    )
+
+    const result = nameAndAge('', 0)
+
+    expect(result).to.eql({
+      found: false,
+      from: 0,
+      to: 0,
+      data: 'not_found'
+    })
+  })
+
   test('list: finds a match', () => {
     const digits = match(/\d+/)
     const comma = match(/,/)
@@ -420,6 +468,20 @@ suite('v2', () => {
     })
   })
 
+  test('list: transforms a not-found result', () => {
+    const names = match(/[a-z]+/)
+    const comma = match(/,/)
+    const digitList = list(names, comma)((list, { found }) => !found && 'not_found')
+    const result = digitList('1,2,3,4,5', 0)
+
+    expect(result).to.eql({
+      found: false,
+      from: 0,
+      to: 0,
+      data: 'not_found'
+    })
+  })
+
   test('optional: finds an input', () => {
     const ws = match(/\s+/)
 
@@ -476,7 +538,7 @@ suite('v2', () => {
     })
   })
 
-  test('optional: transforms the result of a not-found result', () => {
+  test('optional: transforms a not-found result', () => {
     const digit = match(/\d+/)
 
     const optDigit = optional(digit)
