@@ -170,6 +170,64 @@ suite('v2', () => {
     })
   })
 
+  test('sequence: adds a preprocessor to skip whitespace characters', () => {
+    const name = match(/\w+/)
+    const ws = match(/\s+/)
+    const age = match(/\d+/)
+
+    const whitespaceSkipper = (input, offset) => {
+      while (/\s/.test(input[offset])) offset++
+
+      return offset
+    }
+
+    const nameAndAge = sequence({
+      pre: {
+        offset: whitespaceSkipper
+      }
+    })(name, ws, age)
+
+    const result = nameAndAge(' foo 30', 0)
+
+    expect(result).to.eql({
+      found: true,
+      from: 1,
+      to: 7,
+      data: [
+        {
+          found: true, from: 1, to: 4, data: 'foo'
+        },
+        {
+          found: true, from: 4, to: 5, data: ' '
+        },
+        {
+          found: true, from: 5, to: 7, data: '30'
+        }
+      ]
+    })
+  })
+
+  test('sequence: transforms the result by inverting name and age', () => {
+    const name = match(/\w+/)
+    const ws = match(/\s+/)
+    const age = match(/\d+/)
+
+    const nameAndAge = sequence(name, ws, age)(
+      ([name, ws, age], { found }) => {
+        return found && `${age.data}${ws.data}${name.data}`
+      }
+    )
+
+    const result = nameAndAge('foo 30', 0)
+
+    expect(result).to.eql({
+      found: true,
+      from: 0,
+      to: 6,
+      data: `30 foo`
+    })
+  })
+
   test('list: finds a match', () => {
     const digits = match(/\d+/)
     const comma = match(/,/)
@@ -292,64 +350,6 @@ suite('v2', () => {
 
     expect(result).to.eql({
       found: false, from: 0, to: 0, data: undefined
-    })
-  })
-
-  test('sequence: adds a preprocessor to skip whitespace characters', () => {
-    const name = match(/\w+/)
-    const ws = match(/\s+/)
-    const age = match(/\d+/)
-
-    const whitespaceSkipper = (input, offset) => {
-      while (/\s/.test(input[offset])) offset++
-
-      return offset
-    }
-
-    const nameAndAge = sequence({
-      pre: {
-        offset: whitespaceSkipper
-      }
-    })(name, ws, age)
-
-    const result = nameAndAge(' foo 30', 0)
-
-    expect(result).to.eql({
-      found: true,
-      from: 1,
-      to: 7,
-      data: [
-        {
-          found: true, from: 1, to: 4, data: 'foo'
-        },
-        {
-          found: true, from: 4, to: 5, data: ' '
-        },
-        {
-          found: true, from: 5, to: 7, data: '30'
-        }
-      ]
-    })
-  })
-
-  test('sequence: transforms the result by inverting name and age', () => {
-    const name = match(/\w+/)
-    const ws = match(/\s+/)
-    const age = match(/\d+/)
-
-    const nameAndAge = sequence(name, ws, age)(
-      ([name, ws, age], { found }) => {
-        return found && `${age.data}${ws.data}${name.data}`
-      }
-    )
-
-    const result = nameAndAge('foo 30', 0)
-
-    expect(result).to.eql({
-      found: true,
-      from: 0,
-      to: 6,
-      data: `30 foo`
     })
   })
 })
