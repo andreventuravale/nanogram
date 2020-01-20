@@ -53,7 +53,7 @@ suite('v2 > samples', () => {
     rules.term_ = choose(sequence(choose(mult, div), rules.lazy('factor'), rules.lazy('term_')), e)
     rules.factor = choose(sequence(paropen, rules.lazy('expr'), parclose), intLit, strLit)
 
-    const arg = sequence(rules.lazy('expr'))
+    const arg = sequence(rules.expr)
     const argList = list(arg, comma)
     const fnCall = sequence(id, paropen, argList, parclose)
     const statement = choose(fnCall)
