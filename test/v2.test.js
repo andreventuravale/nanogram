@@ -339,8 +339,8 @@ suite('v2', () => {
     const age = match(/\d+/)
 
     const nameAndAge = sequence(name, ws, age)(
-      ([name, ws, age]) => {
-        return `${name.data},${age.data}`
+      ([name, , age], { found }) => {
+        return found && `${name.data},${age.data}`
       }
     )
 

@@ -14,21 +14,24 @@ const sequence = (...args) => {
           offset = processor.pre.offset(input, offset)
         }
 
-        let result = sequence.shift()(input, offset)
+        let itemResult = sequence.shift()(input, offset)
 
-        while (result.found && sequence.length) {
-          data.push(result)
-          result = sequence.shift()(input, result.to)
+        while (itemResult.found && sequence.length) {
+          data.push(itemResult)
+          itemResult = sequence.shift()(input, itemResult.to)
         }
 
-        data.push(result)
+        data.push(itemResult)
 
-        return {
-          found: result.found && sequence.length === 0,
+        const result = {
+          found: itemResult.found && sequence.length === 0,
           from: offset,
-          to: result.to,
-          data: transformer(data)
+          to: itemResult.to
         }
+
+        result.data = transformer(data, result)
+
+        return result
       }
 
       if (args2.length === 1 && typeof args2[0] === 'function') {
