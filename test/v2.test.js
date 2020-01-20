@@ -61,6 +61,18 @@ suite('v2', () => {
     })
   })
 
+  test('match: transforms the result into a typed number', () => {
+    const digit = match({ pre: { offset: whitespaceSkipper } })(/\d/)
+
+    const typedDigit = digit((digit) => Number(digit))
+
+    const result = typedDigit('  1', 0)
+
+    expect(result).to.eql({
+      found: true, from: 2, to: 3, data: 1
+    })
+  })
+
   test('repeat: finds many inputs', () => {
     const digit = match(/\d/)
 
