@@ -41,6 +41,16 @@ suite('v2', () => {
     })
   })
 
+  test('match: sticky regex does not loop indefinitely', () => {
+    const digit = match(/\d/y)
+
+    const result = digit('111', 0)
+
+    expect(result).to.eql({
+      found: true, from: 0, to: 1, data: '1'
+    })
+  })
+
   test('match: does not find an input', () => {
     const ws = match(/\s+/)
 
