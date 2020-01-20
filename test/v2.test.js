@@ -1,14 +1,10 @@
+const { choose, list, match, optional, repeat, sequence } = require('../src')
 const { expect } = require('chai')
+const { skipper } = require('../src/helpers')
 
-const {
-  choose, list, match, optional, repeat, sequence
-} = require('../src')
+const whitespaceSkipper = skipper(/\s/)
 
-const whitespaceSkipper = (input, offset) => {
-  while (/\s/.test(input[offset])) offset++
-
-  return offset
-}
+const processor = { pre: { offset: whitespaceSkipper } }
 
 suite('v2', () => {
   test('match: finds an input', () => {
@@ -62,7 +58,7 @@ suite('v2', () => {
   })
 
   test('match: adds a preprocessor to skip whitespace characters', () => {
-    const digit = match({ pre: { offset: whitespaceSkipper } })(/\d/)
+    const digit = match(processor)(/\d/)
 
     const result = digit('  1', 0)
 
@@ -72,7 +68,7 @@ suite('v2', () => {
   })
 
   test('match: transforms the result into a typed number', () => {
-    const digit = match({ pre: { offset: whitespaceSkipper } })(/\d/)
+    const digit = match(processor)(/\d/)
 
     const typedDigit = digit((digit) => Number(digit))
 
@@ -157,7 +153,7 @@ suite('v2', () => {
   test('repeat: adds a preprocessor to skip whitespace characters', () => {
     const digit = match(/\d/)
 
-    const digits = repeat({ pre: { offset: whitespaceSkipper } })(digit)
+    const digits = repeat(processor)(digit)
 
     const result = digits('  123', 0)
 
@@ -233,6 +229,30 @@ suite('v2', () => {
     })
   })
 
+  test('sequence: finds a match with more than 2 items', () => {
+    const name = match(/\w+/)
+    const ws = match(/\s+/)
+    const code = match(/[a-zA-Z_]\w*/)
+    const result = sequence(name, ws, code)('foo a1', 0)
+
+    expect(result).to.eql({
+      found: true,
+      from: 0,
+      to: 6,
+      data: [
+        {
+          found: true, from: 0, to: 3, data: 'foo'
+        },
+        {
+          found: true, from: 3, to: 4, data: ' '
+        },
+        {
+          found: true, from: 4, to: 6, data: 'a1'
+        }
+      ]
+    })
+  })
+
   test('sequence: does not find the first match', () => {
     const name = match(/\w+/)
     const ws = match(/\s+/)
@@ -280,7 +300,7 @@ suite('v2', () => {
     const ws = match(/\s+/)
     const age = match(/\d+/)
 
-    const nameAndAge = sequence({ pre: { offset: whitespaceSkipper } })(name, ws, age)
+    const nameAndAge = sequence(processor)(name, ws, age)
 
     const result = nameAndAge(' foo 30', 0)
 
@@ -433,7 +453,7 @@ suite('v2', () => {
   test('list: adds a preprocessor to skip whitespace characters', () => {
     const digits = match(/\d+/)
     const comma = match(/,/)
-    const digitList = list({ pre: { offset: whitespaceSkipper } })(digits, comma)
+    const digitList = list(processor)(digits, comma)
     const result = digitList('  1,2,3', 0)
 
     expect(result).to.eql({
@@ -509,7 +529,7 @@ suite('v2', () => {
   test('optional: adds a preprocessor to skip whitespace characters', () => {
     const digit = match(/\d+/)
 
-    const optDigit = optional({ pre: { offset: whitespaceSkipper } })(digit)
+    const optDigit = optional(processor)(digit)
 
     const result = optDigit('  1', 0)
 
@@ -593,7 +613,7 @@ suite('v2', () => {
     const digit = match(/\d/)
     const word = match(/\w/)
 
-    const options = choose({ pre: { offset: whitespaceSkipper } })(digit, word)
+    const options = choose(processor)(digit, word)
 
     const result = options('  1', 0)
 
@@ -622,5 +642,31 @@ suite('v2', () => {
     const result = options('#$%', 0)
 
     expect(result).to.eql({ found: false, from: 0, to: 0, data: 'not_found' })
+  })
+
+  test('skipper: a whitespace skipper', () => {
+    const name = match(processor)(/\w+/)
+
+    const result = name(' 123', 0)
+
+    expect(result).to.eql({
+      found: true,
+      from: 1,
+      to: 4,
+      data: '123'
+    })
+  })
+
+  test(`skipper: does nothing when it isn't needed`, () => {
+    const name = match(processor)(/\w+/)
+
+    const result = name('   1', 3)
+
+    expect(result).to.eql({
+      found: true,
+      from: 3,
+      to: 4,
+      data: '1'
+    })
   })
 })

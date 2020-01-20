@@ -1,44 +1,54 @@
 const feature = custom => {
-  return (...args) => {
-    let featureArgs
-    let processor
-    let transformer = data => data
+  return (processor, ...args) => {
+    if (typeof processor === 'object' && !(processor instanceof RegExp) && args.length === 0) {
+      return (...args1) => {
+        return (transformer, ...args2) => {
+          if (typeof transformer === 'function' && args2.length === 0) {
+            return (input, offset) => {
+              if (processor.pre && processor.pre.offset) {
+                offset = processor.pre.offset(input, offset)
+              }
 
-    const step1 = (...args1) => {
-      const step2 = (...args2) => {
-        const step3 = (...args3) => {
-          const input = args3[0]
-          let offset = args3[1]
+              const result = custom(input, offset, ...args1)
 
-          if (processor && processor.pre && processor.pre.offset) {
-            offset = processor.pre.offset(input, offset)
+              result.data = transformer(result.data, result)
+
+              return result
+            }
+          } else {
+            const input = transformer
+            let offset = args2[0]
+
+            if (processor.pre && processor.pre.offset) {
+              offset = processor.pre.offset(input, offset)
+            }
+
+            const result = custom(input, offset, ...args1)
+
+            return result
           }
+        }
+      }
+    } else {
+      return (transformer, ...args2) => {
+        if (typeof transformer === 'function' && args2.length === 0) {
+          return (input, offset) => {
+            const result = custom(input, offset, processor, ...args)
 
-          const result = custom(input, offset, ...featureArgs)
+            result.data = transformer(result.data, result)
 
-          result.data = transformer(result.data, result)
+            return result
+          }
+        } else {
+          const input = transformer
+          const offset = args2[0]
+
+          const result = custom(input, offset, processor, ...args)
 
           return result
         }
-
-        if (args2.length === 1 && typeof args2[0] === 'function') {
-          transformer = args2[0]
-          return step3
-        } else {
-          return step3(...args2)
-        }
-      }
-
-      if (args1.length === 1 && ((typeof args1[0] === 'object') && !(args1[0] instanceof RegExp))) {
-        processor = args1[0]
-        return step1
-      } else {
-        featureArgs = args1
-        return step2
       }
     }
-
-    return step1(...args)
   }
 }
 
