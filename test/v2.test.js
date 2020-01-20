@@ -478,4 +478,15 @@ suite('v2', () => {
 
     expect(result).to.eql({ found: true, from: 0, to: 3, data: 123 })
   })
+
+  test('choose: transforms a not-found result', () => {
+    const digit = match(/\d+/)
+    const word = match(/\w+/)
+
+    const options = choose(digit, word)((data, { found }) => found ? data : Symbol.for('not_found'))
+
+    const result = options('#$%', 0)
+
+    expect(result).to.eql({ found: false, from: 0, to: 0, data: Symbol.for('not_found') })
+  })
 })
