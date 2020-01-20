@@ -301,9 +301,8 @@ suite('v2', () => {
     const age = match(/\d+/)
 
     const whitespaceSkipper = (input, offset) => {
-      while (/\s/.test(input[offset])) {
-        offset++
-      }
+      while (/\s/.test(input[offset])) offset++
+
       return offset
     }
 
