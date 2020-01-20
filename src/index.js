@@ -128,13 +128,15 @@ const list = (element, separator) => (input, offset) => {
   }
 }
 
-const optional = element => (input, offset) => {
-  const data = element(input, offset)
+const optional = feature(
+  (input, offset, element) => {
+    const data = element(input, offset)
 
-  data.found = true
+    data.found = true
 
-  return data
-}
+    return data
+  }
+)
 
 const choose = (...args) => (input, offset) => {
   const sequence = args.slice(0)
@@ -153,10 +155,11 @@ const choose = (...args) => (input, offset) => {
 }
 
 module.exports = {
-  choose,
-  list,
   match,
   optional,
   repeat,
-  sequence
+  sequence,
+
+  choose,
+  list
 }

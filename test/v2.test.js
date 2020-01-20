@@ -372,6 +372,50 @@ suite('v2', () => {
     })
   })
 
+  test('optional: adds a preprocessor to skip whitespace characters', () => {
+    const digit = match(/\d+/)
+
+    const optDigit = optional({ pre: { offset: whitespaceSkipper } })(digit)
+
+    const result = optDigit('  1', 0)
+
+    expect(result).to.eql({
+      found: true,
+      from: 2,
+      to: 3,
+      data: '1'
+    })
+  })
+
+  test('optional: transforms the result by converting it to a typed number', () => {
+    const digit = match(/\d+/)
+
+    const optDigit = optional(digit)
+
+    const typedOptDigit = optDigit((data, { found }) => found && Number(data))
+
+    const result = typedOptDigit('1', 0)
+
+    expect(result).to.eql({
+      found: true,
+      from: 0,
+      to: 1,
+      data: 1
+    })
+  })
+
+  test('optional: transforms the result of a not-found result', () => {
+    const digit = match(/\d+/)
+
+    const optDigit = optional(digit)
+
+    const typedOptDigit = optDigit((data) => data || NaN)
+
+    expect(typedOptDigit('1', 0)).to.eql({ found: true, from: 0, to: 1, data: '1' })
+
+    expect(typedOptDigit('', 0)).to.eql({ found: true, from: 0, to: 0, data: NaN })
+  })
+
   test('choose: finds an input for the first option', () => {
     const digit = match(/\d/)
     const word = match(/\w/)
