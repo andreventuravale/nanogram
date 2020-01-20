@@ -120,6 +120,40 @@ suite('v2', () => {
     })
   })
 
+  test('repeat: finds a single input', () => {
+    const digit = match(/\d/)
+
+    const digits = repeat(digit)
+
+    const result = digits('1', 0)
+
+    expect(result).to.eql({
+      found: true,
+      from: 0,
+      to: 1,
+      data: [
+        {
+          found: true, from: 0, to: 1, data: '1'
+        }
+      ]
+    })
+  })
+
+  test('repeat: does not find any input', () => {
+    const digit = match(/\d/)
+
+    const digits = repeat(digit)
+
+    const result = digits('', 0)
+
+    expect(result).to.eql({
+      found: false,
+      from: 0,
+      to: 0,
+      data: []
+    })
+  })
+
   test('repeat: adds a preprocessor to skip whitespace characters', () => {
     const digit = match(/\d/)
 
@@ -172,40 +206,6 @@ suite('v2', () => {
       from: 0,
       to: 0,
       data: 'not_found'
-    })
-  })
-
-  test('repeat: finds a single input', () => {
-    const digit = match(/\d/)
-
-    const digits = repeat(digit)
-
-    const result = digits('1', 0)
-
-    expect(result).to.eql({
-      found: true,
-      from: 0,
-      to: 1,
-      data: [
-        {
-          found: true, from: 0, to: 1, data: '1'
-        }
-      ]
-    })
-  })
-
-  test('repeat: does not find any input', () => {
-    const digit = match(/\d/)
-
-    const digits = repeat(digit)
-
-    const result = digits('', 0)
-
-    expect(result).to.eql({
-      found: false,
-      from: 0,
-      to: 0,
-      data: []
     })
   })
 
