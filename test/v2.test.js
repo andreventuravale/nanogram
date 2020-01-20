@@ -98,7 +98,32 @@ suite('v2', () => {
     })
   })
 
-  test('repeat: transforms the result by summing the numbers', () => {
+  test('repeat: adds a preprocessor to skip whitespace characters', () => {
+    const digit = match(/\d/)
+
+    const digits = repeat({ pre: { offset: whitespaceSkipper } })(digit)
+
+    const result = digits('  123', 0)
+
+    expect(result).to.eql({
+      found: true,
+      from: 2,
+      to: 5,
+      data: [
+        {
+          found: true, from: 2, to: 3, data: '1'
+        },
+        {
+          found: true, from: 3, to: 4, data: '2'
+        },
+        {
+          found: true, from: 4, to: 5, data: '3'
+        }
+      ]
+    })
+  })
+
+  test('repeat: transforms the result by summing the digits', () => {
     const digit = match(/\d/)
 
     const sum = repeat(digit)(list => list.reduce((sum, item) => sum + Number(item.data), 0))
