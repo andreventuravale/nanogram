@@ -51,7 +51,7 @@ suite('v2 > samples', () => {
     rules.expr_ = choose(sequence(choose(plus, minus), rules.lazy('term'), rules.lazy('expr_')), e)
     rules.term = sequence(rules.lazy('factor'), rules.lazy('term_'))
     rules.term_ = choose(sequence(choose(mult, div), rules.lazy('factor'), rules.lazy('term_')), e)
-    rules.factor = choose(sequence(paropen, rules.lazy('expr'), parclose), intLit, strLit)
+    rules.factor = choose(sequence(paropen, rules.lazy('expr'), parclose), intLit, strLit, id)
 
     const arg = sequence(rules.expr)
     const argList = list(arg, comma)
@@ -65,7 +65,7 @@ suite('v2 > samples', () => {
 
     const input = `
       void main() {
-        printf("%d %d", (1 + 1), 1 - 1);
+        printf("%d %d", (1 + 1) * "teste" + true, 1 - 1);
       }
     `
 
