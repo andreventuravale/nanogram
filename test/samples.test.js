@@ -24,20 +24,36 @@ suite('v2 > samples', () => {
     // const repeat = nanogram.repeat(processor)
     // const sequence = nanogram.sequence(processor)
 
-    const comma = match(/,/)
     const braceclose = match(/\}/)
     const braceopen = match(/\{/)
+    const comma = match(/,/)
+    const div = match(/\//)
+    const id = match(/[a-zA-Z_]\w*/)
+    const intLit = match(/\d+/)
+    const minus = match(/-/)
+    const mult = match(/\*/)
     const parclose = match(/\)/)
     const paropen = match(/\(/)
+    const plus = match(/\+/)
     const semicolon = match(/;/)
-
-    const ws = nanogram.match(/\s+/)
-    const id = match(/[a-zA-Z_]\w*/)
-    const voidkw = match(/void/)
-    const type = choose(voidkw, id)
     const strLit = match(/"[^"]*"/)
-    const expr = choose(strLit)
-    const arg = sequence(expr)
+    const voidkw = match(/void/)
+    const ws = nanogram.match(/\s+/)
+    const e = (input, offset) => ({ found: true, from: offset, to: offset, data: Symbol.for('empty') })
+
+    const type = choose(voidkw, id)
+
+    const rules = {
+      lazy: rule => (...args) => rules[rule](...args)
+    }
+
+    rules.expr = sequence(rules.lazy('term'), rules.lazy('expr_'))
+    rules.expr_ = choose(sequence(choose(plus, minus), rules.lazy('term'), rules.lazy('expr_')), e)
+    rules.term = sequence(rules.lazy('factor'), rules.lazy('term_'))
+    rules.term_ = choose(sequence(choose(mult, div), rules.lazy('factor'), rules.lazy('term_')), e)
+    rules.factor = choose(sequence(paropen, rules.lazy('expr'), parclose), intLit, strLit)
+
+    const arg = sequence(rules.lazy('expr'))
     const argList = list(arg, comma)
     const fnCall = sequence(id, paropen, argList, parclose)
     const statement = choose(fnCall)
@@ -49,7 +65,7 @@ suite('v2 > samples', () => {
 
     const input = `
       void main() {
-        printf("hello world");
+        printf("%d %d", (1 + 1), 1 - 1);
       }
     `
 
