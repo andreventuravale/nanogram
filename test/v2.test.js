@@ -348,7 +348,7 @@ suite('v2', () => {
     })
   })
 
-  test('optional: adds a preprocessor to skip whitespace characters', () => {
+  test('list: adds a preprocessor to skip whitespace characters', () => {
     const digits = match(/\d+/)
     const comma = match(/,/)
     const digitList = list({ pre: { offset: whitespaceSkipper } })(digits, comma)
@@ -369,6 +369,20 @@ suite('v2', () => {
           found: true, from: 6, to: 7, data: '3'
         }
       ]
+    })
+  })
+
+  test('list: transforms the results by summing the digits', () => {
+    const digits = match(/\d+/)
+    const comma = match(/,/)
+    const digitList = list(digits, comma)(list => list.reduce((sum, item) => sum + Number(item.data), 0))
+    const result = digitList('1,2,3,4,5', 0)
+
+    expect(result).to.eql({
+      found: true,
+      from: 0,
+      to: 9,
+      data: 15
     })
   })
 
