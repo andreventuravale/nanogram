@@ -98,6 +98,21 @@ suite('v2', () => {
     })
   })
 
+  test('repeat: transforms the result by summing the numbers', () => {
+    const digit = match(/\d/)
+
+    const sum = repeat(digit)(list => list.reduce((sum, item) => sum + Number(item.data), 0))
+
+    const result = sum('12345', 0)
+
+    expect(result).to.eql({
+      found: true,
+      from: 0,
+      to: 5,
+      data: 15
+    })
+  })
+
   test('repeat: finds a single input', () => {
     const digit = match(/\d/)
 

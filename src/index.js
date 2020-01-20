@@ -83,20 +83,25 @@ const match = feature(
   }
 )
 
-const repeat = element => (input, offset) => {
-  const data = []
-  const first = element(input, offset)
-  let last = first
+const repeat = feature(
+  (input, offset, element) => {
+    const data = []
+    const first = element(input, offset)
+    let last = first
 
-  while (last.found) {
-    data.push(last)
-    last = element(input, last.to)
-  }
+    while (last.found) {
+      data.push(last)
+      last = element(input, last.to)
+    }
 
-  return {
-    found: data.length > 0, from: offset, to: last.to, data
+    return {
+      found: data.length > 0,
+      from: offset,
+      to: last.to,
+      data
+    }
   }
-}
+)
 
 const list = (element, separator) => (input, offset) => {
   const data = []
