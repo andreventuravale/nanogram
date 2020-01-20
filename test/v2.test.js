@@ -429,7 +429,7 @@ suite('v2', () => {
   test('list: configured to consume an eventual trailing separator left alone', () => {
     const digits = match(/\d+/)
     const comma = match(/,/)
-    const digitList = list(digits, comma, { trailingSeparator: true })
+    const digitList = list(digits, comma, { trailSep: true })
     const result = digitList('1,2,3,', 0)
 
     expect(result).to.eql({

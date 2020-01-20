@@ -121,7 +121,7 @@ const list = feature(
     }
 
     const hasTrailingSep = sep && sep.found && sep.from >= tail.to
-    const consumeTrailingSep = options && options.trailingSeparator
+    const consumeTrailingSep = options && options.trailSep
 
     return {
       found: data.length > 0, from: offset, to: hasTrailingSep && consumeTrailingSep ? sep.to : tail.to, data
