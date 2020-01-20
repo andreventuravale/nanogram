@@ -138,21 +138,23 @@ const optional = feature(
   }
 )
 
-const choose = (...args) => (input, offset) => {
-  const sequence = args.slice(0)
+const choose = feature(
+  (input, offset, ...args) => {
+    const options = args.slice(0)
 
-  let result = { found: false, to: offset }
+    let result = { found: false, to: offset }
 
-  do {
-    result = sequence.shift()(input, result.to)
-  } while (!result.found && sequence.length)
+    do {
+      result = options.shift()(input, result.to)
+    } while (!result.found && options.length)
 
-  if (!result.found) {
-    result.data = undefined
+    if (!result.found) {
+      result.data = undefined
+    }
+
+    return result
   }
-
-  return result
-}
+)
 
 module.exports = {
   match,

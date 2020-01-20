@@ -454,4 +454,28 @@ suite('v2', () => {
       found: false, from: 0, to: 0, data: undefined
     })
   })
+
+  test('choose: adds a preprocessor to skip whitespace characters', () => {
+    const digit = match(/\d/)
+    const word = match(/\w/)
+
+    const options = choose({ pre: { offset: whitespaceSkipper } })(digit, word)
+
+    const result = options('  1', 0)
+
+    expect(result).to.eql({
+      found: true, from: 2, to: 3, data: '1'
+    })
+  })
+
+  test('choose: transforms the result into a typed number', () => {
+    const digit = match(/\d+/)
+    const word = match(/\w/)
+
+    const options = choose(digit, word)(digit => Number(digit))
+
+    const result = options('123', 0)
+
+    expect(result).to.eql({ found: true, from: 0, to: 3, data: 123 })
+  })
 })
