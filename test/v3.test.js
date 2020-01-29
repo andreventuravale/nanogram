@@ -68,11 +68,10 @@ const optimize = grammar => {
       if (rule === leaf) {
         if (sumOfIndexesAlong === 0) {
           // console.log('recursion of', leaf, sumOfIndexesAlong)
-          fix()
+          fix(leaf, sumOfIndexesAlong)
         }
       }
-    } else if (leaf instanceof RegExp) {
-    } else {
+    } else if (!(leaf instanceof RegExp)) {
       throw new Error('Unexpected scenario: ' + leaf)
     }
   }
@@ -95,49 +94,69 @@ const optimize = grammar => {
   for (let [rule, def] of grammar.slice(0)) {
     // console.log(rule, 'def', def)
 
-    // if (def instanceof Array) {
-    //   visitBranch(grammar, rule, def, 0, function (def, defIndex) {
-    //     def.splice(defIndex, 1)
-    //     def_.push(def)
-    //   })
-    // } else {
     visitLeaf(grammar, rule, def, 0, function (defToFix, defToFixIndex) {
-      def[0].splice(defToFixIndex, 1)
-      defToFix[0].shift()
-      defToFix[0].push(`${rule}_`)
+      if (def instanceof Array && defToFix instanceof Array) {
+        def[0].splice(defToFixIndex, 1)
+        defToFix[0].shift()
+        defToFix[0].push(`${rule}_`)
 
-      if (!grammar[ruleIndex + 1]) {
-        grammar.splice(ruleIndex + 1, 0, [`${rule}_`, [['E'], '|']])
-      }
+        if (!grammar[ruleIndex + 1]) {
+          grammar.push([`${rule}_`, [['E'], '|']])
+        }
 
-      grammar[ruleIndex + 1][1][0].splice(grammar[ruleIndex + 1][1][0].length - 1, 0, defToFix)
+        grammar[ruleIndex + 1][1][0].splice(grammar[ruleIndex + 1][1][0].length - 1, 0, defToFix)
 
-      if (def instanceof Array) {
         if (def[0].length === 1) {
           def = def[0][0]
           grammar.splice(ruleIndex, 1, [rule, def])
         }
-      } else {
-        throw new Error('not impl')
-      }
 
-      if (def instanceof Array) {
-        throw new Error('not impl')
-      } else {
-        def = [
-          [
-            def,
-            `${rule}_`
-          ],
-          ','
-        ]
+        def = [[def, `${rule}_`], ',']
 
         grammar.splice(ruleIndex, 1, [rule, def])
+      } else if (def instanceof Array) {
+        def[0].splice(defToFixIndex, 1)
+
+        if (def[0].length === 1) {
+          def = def[0][0]
+          grammar[ruleIndex] = [rule, def]
+        }
+
+        if (def instanceof Array) {
+          throw new Error('not impl')
+        } else {
+          grammar[ruleIndex] = [rule, `${rule}_`]
+        }
+
+        if (!grammar[ruleIndex + 1]) {
+          grammar.push([`${rule}_`, [['E'], '|']])
+        }
+
+        grammar[ruleIndex + 1][1][0].unshift([[def, `${rule}_`], ','])
+      } else {
+        if (!grammar[ruleIndex + 1]) {
+          grammar.push([`${rule}_`, 'E'])
+        }
+
+        grammar[ruleIndex] = [rule, `${rule}_`]
       }
     })
 
     ruleIndex++
   }
+
+  ruleIndex = 0
+
+  // for (let [rule, def] of grammar.slice(0)) {
+  //   if (def instanceof Array) {
+  //     if (def[0].length === 1) {
+  //       def = def[0][0]
+  //       grammar.splice(ruleIndex, 1, [rule, def])
+  //     }
+  //   }
+
+  //   ruleIndex++
+  // }
 
   return grammar
 }
@@ -260,40 +279,68 @@ suite('v3', () => {
     ])
   })
 
-  test('remove left recursion', () => {
-    expect(
-      factor(
+  suite('left recursion', () => {
+    test('case', () => {
+      expect(
+        optimize(
+          grammar(
+            ({ define }) => {
+              define('expr', 'expr')
+            }
+          )
+        )
+      ).to.eql(
         grammar(
-          ({ concat, define }) => {
-            define('expr', concat('expr', 'minus', 'term'))
-            define('expr', 'term')
+          ({ define }) => {
+            define('expr', 'expr_')
+            define('expr_', 'E')
           }
         )
       )
-    ).to.eql(
-      grammar(
-        ({ choose, define, optional, repeat, concat }) => {
-          define('expr', choose(concat('expr', 'minus', 'term'), 'term'))
-        }
-      )
-    )
+    })
 
-    expect(
-      optimize(
+    test('case', () => {
+      expect(
+        optimize(
+          grammar(
+            ({ concat, define }) => {
+              define('expr', concat('expr', 'minus', 'term'))
+              define('expr', 'term')
+            }
+          )
+        )
+      ).to.eql(
         grammar(
-          ({ concat, define }) => {
-            define('expr', concat('expr', 'minus', 'term'))
-            define('expr', 'term')
+          ({ choose, concat, define }) => {
+            define('expr', concat('term', 'expr_'))
+            define('expr_', choose(concat('minus', 'term', 'expr_'), 'E'))
           }
         )
       )
-    ).to.eql(
+    })
+
+    test('case', () => {
+      expect(
+        optimize(
+          grammar(
+            ({ choose, define, optional, repeat, concat }) => {
+              define('expr', concat('expr', 'term'))
+            }
+          )
+        )
+      ).to.eql(
+        grammar(
+          ({ choose, concat, define }) => {
+            define('expr', 'expr_')
+            define('expr_', choose(concat('term', 'expr_'), 'E'))
+          }
+        )
+      )
       grammar(
-        ({ choose, define, optional, repeat, concat }) => {
-          define('expr', concat('term', 'expr_'))
-          define('expr_', choose(concat('minus', 'term', 'expr_'), 'E'))
+        ({ choose, concat, define }) => {
+          define('expr', 'expr_')
         }
       )
-    )
+    })
   })
 })
