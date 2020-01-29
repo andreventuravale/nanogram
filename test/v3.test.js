@@ -4,7 +4,11 @@ const grammar = function (build) {
   const result = []
 
   const item = value => {
-    if (value instanceof RegExp) {
+    if (value instanceof Array && value.length === 2 && value[0] instanceof Array && typeof value[1] === 'string') {
+      return value
+    } else if (value instanceof RegExp) {
+      return value
+    } else if (typeof value === 'symbol') {
       return value
     } else if (typeof value === 'string') {
       return value
@@ -44,13 +48,103 @@ const factor = grammar => {
     hash[key].push(value)
   }
   return r.map(([key, value]) => {
-    return [key, value.length === 1 ? value[0] : value]
+    return [key, value.length === 1 ? value[0] : [value, '|']]
   })
+}
+
+const optimize = grammar => {
+  grammar = factor(grammar)
+
+  function visitLeaf (grammar, rule, leaf, sumOfIndexesAlong, fix) {
+    // console.log('entering leaf')
+
+    if (leaf instanceof Array) {
+      if (leaf.length === 2 && leaf[0] instanceof Array && typeof leaf[1] === 'string') {
+        visitBranch(grammar, rule, leaf[0], sumOfIndexesAlong, fix)
+      } else {
+        throw new Error('Unexpected scenario: ' + leaf)
+      }
+    } else if (typeof leaf === 'string') {
+      if (rule === leaf) {
+        if (sumOfIndexesAlong === 0) {
+          // console.log('recursion of', leaf, sumOfIndexesAlong)
+          fix()
+        }
+      }
+    } else if (leaf instanceof RegExp) {
+    } else {
+      throw new Error('Unexpected scenario: ' + leaf)
+    }
+  }
+
+  function visitBranch (grammar, rule, branch, branchIndex, fix) {
+    // console.log('entering branch')
+    let leafIndex = 0
+
+    for (const leaf of branch) {
+      // console.log('def', leaf)
+
+      visitLeaf(grammar, rule, leaf, branchIndex + leafIndex, () => fix(leaf, leafIndex))
+
+      leafIndex++
+    }
+  }
+
+  let ruleIndex = 0
+
+  for (let [rule, def] of grammar.slice(0)) {
+    // console.log(rule, 'def', def)
+
+    // if (def instanceof Array) {
+    //   visitBranch(grammar, rule, def, 0, function (def, defIndex) {
+    //     def.splice(defIndex, 1)
+    //     def_.push(def)
+    //   })
+    // } else {
+    visitLeaf(grammar, rule, def, 0, function (defToFix, defToFixIndex) {
+      def[0].splice(defToFixIndex, 1)
+      defToFix[0].shift()
+      defToFix[0].push(`${rule}_`)
+
+      if (!grammar[ruleIndex + 1]) {
+        grammar.splice(ruleIndex + 1, 0, [`${rule}_`, [['E'], '|']])
+      }
+
+      grammar[ruleIndex + 1][1][0].splice(grammar[ruleIndex + 1][1][0].length - 1, 0, defToFix)
+
+      if (def instanceof Array) {
+        if (def[0].length === 1) {
+          def = def[0][0]
+          grammar.splice(ruleIndex, 1, [rule, def])
+        }
+      } else {
+        throw new Error('not impl')
+      }
+
+      if (def instanceof Array) {
+        throw new Error('not impl')
+      } else {
+        def = [
+          [
+            def,
+            `${rule}_`
+          ],
+          ','
+        ]
+
+        grammar.splice(ruleIndex, 1, [rule, def])
+      }
+    })
+
+    ruleIndex++
+  }
+
+  return grammar
 }
 
 suite('v3', () => {
   test('grammar', () => {
-    const result = grammar(({ define, choose, optional, repeat, concat }) => {
+    const result = grammar(({ choose, define, optional, repeat, concat }) => {
       define('asterisk', /\*/)
       define('digit', /\d/)
       define('id', /\w/)
@@ -69,7 +163,7 @@ suite('v3', () => {
       define('term', concat('term', 'asterisk', 'factor'))
     })
 
-    require('clipboardy').writeSync(JSON.stringify(result, 0, 2))
+    // require('clipboardy').writeSync(JSON.stringify(result, 0, 2))
 
     expect(result).to.eql([
       ['asterisk', /\*/],
@@ -88,8 +182,32 @@ suite('v3', () => {
     ])
   })
 
+  test('grammar - choose - accepts an array from a concat', () => {
+    const result = grammar(({ choose, define, optional, repeat, concat }) => {
+      define('expr', choose(
+        concat('expr', 'minus', 'term'),
+        'term'
+      ))
+    })
+
+    // require('clipboardy').writeSync(JSON.stringify(result, 0, 2))
+
+    expect(result).to.eql([
+      [
+        'expr',
+        [
+          [
+            [['expr', 'minus', 'term'], ','],
+            'term'
+          ],
+          '|'
+        ]
+      ]
+    ])
+  })
+
   test('factor', () => {
-    const result = factor(grammar(({ define, choose, optional, repeat, concat }) => {
+    const result = factor(grammar(({ choose, define, optional, repeat, concat }) => {
       define('asterisk', /\*/)
       define('digit', /\d/)
       define('id', /\w/)
@@ -108,7 +226,7 @@ suite('v3', () => {
       define('term', concat('term', 'asterisk', 'factor'))
     }))
 
-    require('clipboardy').writeSync(JSON.stringify(result, 0, 2))
+    // require('clipboardy').writeSync(JSON.stringify(result, 0, 2))
 
     expect(result).to.eql([
       ['asterisk', /\*/],
@@ -119,17 +237,63 @@ suite('v3', () => {
       ['paropen', /\(/],
       ['plus', /\+/],
       ['expr', [
-        [['expr', 'minus', 'term'], ','],
-        [['term'], ',']
+        [
+          [['expr', 'minus', 'term'], ','],
+          [['term'], ',']
+        ],
+        '|'
       ]],
       ['factor', [
-        [['id', 'digit'], '|'],
-        [['paropen', 'expr', 'parclose'], ',']
+        [
+          [['id', 'digit'], '|'],
+          [['paropen', 'expr', 'parclose'], ',']
+        ],
+        '|'
       ]],
       ['term', [
-        'factor',
-        [['term', 'asterisk', 'factor'], ',']
+        [
+          'factor',
+          [['term', 'asterisk', 'factor'], ',']
+        ],
+        '|'
       ]]
     ])
+  })
+
+  test('remove left recursion', () => {
+    expect(
+      factor(
+        grammar(
+          ({ concat, define }) => {
+            define('expr', concat('expr', 'minus', 'term'))
+            define('expr', 'term')
+          }
+        )
+      )
+    ).to.eql(
+      grammar(
+        ({ choose, define, optional, repeat, concat }) => {
+          define('expr', choose(concat('expr', 'minus', 'term'), 'term'))
+        }
+      )
+    )
+
+    expect(
+      optimize(
+        grammar(
+          ({ concat, define }) => {
+            define('expr', concat('expr', 'minus', 'term'))
+            define('expr', 'term')
+          }
+        )
+      )
+    ).to.eql(
+      grammar(
+        ({ choose, define, optional, repeat, concat }) => {
+          define('expr', concat('term', 'expr_'))
+          define('expr_', choose(concat('minus', 'term', 'expr_'), 'E'))
+        }
+      )
+    )
   })
 })
