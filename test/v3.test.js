@@ -70,7 +70,7 @@ const factor = grammar => {
   function build (node, depth) {
     const r = []
 
-    for (const k in node) {
+    for (const k of Object.keys(node).sort()) {
       const v = node[k]
 
       if (depth === 0) {
@@ -296,14 +296,8 @@ suite('v3', () => {
       expect(result).to.eql(
         grammar(({ define, choose }) => {
           define('foo', 'bar')
-          define('a', choose(
-            'b',
-            'c'
-          ))
-          define('x', choose(
-            'y',
-            'z'
-          ))
+          define('a', choose('b', 'c'))
+          define('x', choose('y', 'z'))
         })
       )
     })
@@ -319,6 +313,40 @@ suite('v3', () => {
       expect(result).to.eql(
         grammar(({ define, concat, choose }) => {
           define('a', concat('b', choose('c', /d/)))
+        })
+      )
+    })
+
+    test('case', () => {
+      const result = factor(
+        grammar(({ define, concat }) => {
+          define('a', concat('b', 'c'))
+          define('a', concat('b', 'd'))
+          define('a', concat('b', 'd', 'e'))
+          define('a', concat('b', 'd', 'f'))
+        })
+      )
+
+      expect(result).to.eql(
+        grammar(({ define, concat, choose }) => {
+          define('a', concat('b', choose('c', concat('d', choose('e', 'f')))))
+        })
+      )
+    })
+
+    test.only('case', () => {
+      const result = factor(
+        grammar(({ define, concat }) => {
+          define('a', concat('b', 'd', 'e'))
+          define('a', concat('b', 'c'))
+          define('a', concat('b', 'd'))
+          define('a', concat('b', 'd', 'f'))
+        })
+      )
+
+      expect(result).to.eql(
+        grammar(({ define, concat, choose }) => {
+          define('a', concat('b', choose('c', concat('d', choose('e', 'f')))))
         })
       )
     })
