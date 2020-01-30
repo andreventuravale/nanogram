@@ -295,8 +295,8 @@ suite('v3', () => {
 
       expect(result).to.eql(
         grammar(({ define, choose }) => {
-          define('foo', 'bar')
           define('a', choose('b', 'c'))
+          define('foo', 'bar')
           define('x', choose('y', 'z'))
         })
       )
@@ -312,7 +312,7 @@ suite('v3', () => {
 
       expect(result).to.eql(
         grammar(({ define, concat, choose }) => {
-          define('a', concat('b', choose('c', /d/)))
+          define('a', concat('b', choose(/d/, 'c')))
         })
       )
     })
@@ -334,13 +334,13 @@ suite('v3', () => {
       )
     })
 
-    test.only('case', () => {
+    test('case', () => {
       const result = factor(
         grammar(({ define, concat }) => {
-          define('a', concat('b', 'd', 'e'))
-          define('a', concat('b', 'c'))
-          define('a', concat('b', 'd'))
           define('a', concat('b', 'd', 'f'))
+          define('a', concat('b', 'd', 'e'))
+          define('a', concat('b', 'd'))
+          define('a', concat('b', 'c'))
         })
       )
 
