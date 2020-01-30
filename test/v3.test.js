@@ -38,18 +38,56 @@ const grammar = function (build) {
 }
 
 const factor = grammar => {
-  const hash = {}
-  const r = []
-  for (const [key, value] of grammar) {
-    if (!hash[key]) {
-      hash[key] = []
-      r.push([key, hash[key]])
+  const graph = {}
+  const dict = {}
+
+  function visit (path, v) {
+    if (v instanceof Array) {
+      if (v[0] instanceof Array) {
+        let i = 1
+        for (const el of v[0]) {
+          visit([...path, ...v[0].slice(0, i)], el)
+          i++
+        }
+      } else {
+        throw 123
+      }
+    } else {
+      let curr = graph
+      for (const seg of path) {
+        curr[seg] = curr[seg] || {}
+        curr = curr[seg]
+      }
+      dict[v] = v
     }
-    hash[key].push(value)
   }
-  return r.map(([key, value]) => {
-    return [key, value.length === 1 ? value[0] : [value, '|']]
-  })
+
+  for (const [key, val] of grammar) {
+    visit([key], val)
+  }
+
+  function build (node, depth) {
+    const r = []
+
+    for (const k in node) {
+      const v = node[k]
+
+      if (depth === 0) {
+        r.push([k, build(v, depth + 1)[0]])
+      } else {
+        if (Object.keys(v).length) {
+          const l = build(v, depth + 1)
+          r.push([[k, [l, '|']], ','])
+        } else {
+          r.push(dict[k])
+        }
+      }
+    }
+
+    return r
+  }
+
+  return build(graph, 0)
 }
 
 const optimize = grammar => {
@@ -163,7 +201,7 @@ const optimize = grammar => {
 
 suite('v3', () => {
   suite('grammar', () => {
-    test.only('accepts a string', () => {
+    test('accepts a string', () => {
       const result = grammar(({ define }) => {
         define('foo', 'bar')
       })
@@ -173,7 +211,7 @@ suite('v3', () => {
       ])
     })
 
-    test.only('concat', () => {
+    test('concat', () => {
       const result = grammar(({ define, concat }) => {
         define('a', concat('b', 'c'))
       })
@@ -183,7 +221,7 @@ suite('v3', () => {
       ])
     })
 
-    test.only('choose', () => {
+    test('choose', () => {
       const result = grammar(({ define, choose }) => {
         define('a', choose('b', 'c'))
       })
@@ -193,7 +231,7 @@ suite('v3', () => {
       ])
     })
 
-    test.only('repeat', () => {
+    test('repeat', () => {
       const result = grammar(({ define, repeat }) => {
         define('a', repeat('a', 'b'))
       })
@@ -203,7 +241,7 @@ suite('v3', () => {
       ])
     })
 
-    test.only('optional', () => {
+    test('optional', () => {
       const result = grammar(({ define, optional }) => {
         define('a', optional('b'))
       })
@@ -213,7 +251,7 @@ suite('v3', () => {
       ])
     })
 
-    test.only('many defines', () => {
+    test('many defines', () => {
       const result = grammar(({ define }) => {
         define('a', 'b')
         define('a', 'c')
@@ -227,7 +265,7 @@ suite('v3', () => {
       ])
     })
 
-    test.only('nesting - choose( concat( regex, string ), string )', () => {
+    test('nesting - choose( concat( regex, string ), string )', () => {
       const result = grammar(({ choose, define, concat }) => {
         define('foo', choose(
           concat(/qux/, 'waldo'),
@@ -242,7 +280,7 @@ suite('v3', () => {
   })
 
   suite('factor', () => {
-    test.only('case', () => {
+    test('case', () => {
       const result = factor(grammar(({ define }) => {
         define('foo', 'bar')
         define('a', 'b')
@@ -259,25 +297,40 @@ suite('v3', () => {
     })
 
     test.only('case', () => {
-      const result = factor(grammar(({ define, concat }) => {
-        define('a', concat('b', 'c'))
-        define('a', concat('b', 'd'))
-      }))
+      const result = factor(
+        grammar(({ define, concat }) => {
+          define('a', concat('b', 'c'))
+          define('a', concat('b', /d/))
+        })
+      )
 
       // require('clipboardy').writeSync(JSON.stringify(result, 0, 2))
+      /*
+      -[
+      -  [
+      -    "a"
+      -    [
+      -      [
+      -        "b"
+      -        [
+      -          [
+      -            "c"
+      -            /d/
+      -          ]
+      -          "|"
+      -        ]
+      -      ]
+      -      ","
+      -    ]
+      -  ]
+      -]
+      */
 
-      expect(result).to.eql([
-        [
-          'a',
-          [
-            [
-              [['b', 'c'], ','],
-              [['b', 'd'], ',']
-            ],
-            '|'
-          ]
-        ]
-      ])
+      expect(result).to.eql(
+        grammar(({ define, concat, choose }) => {
+          define('a', concat('b', choose('c', /d/)))
+        })
+      )
     })
   })
 
