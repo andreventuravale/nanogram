@@ -46,11 +46,11 @@ const factor = grammar => {
       if (v[0] instanceof Array) {
         let i = 1
         for (const el of v[0]) {
-          visit([...path, ...v[0].slice(0, i)], el)
+          visit([...path, ...v[0].slice(0, i - 1)], el)
           i++
         }
       } else {
-        throw 123
+        throw new Error('not impl')
       }
     } else {
       let curr = graph
@@ -58,6 +58,7 @@ const factor = grammar => {
         curr[seg] = curr[seg] || {}
         curr = curr[seg]
       }
+      curr[v] = curr[v] || {}
       dict[v] = v
     }
   }
@@ -73,7 +74,8 @@ const factor = grammar => {
       const v = node[k]
 
       if (depth === 0) {
-        r.push([k, build(v, depth + 1)[0]])
+        const l = build(v, depth + 1)
+        r.push([k, l.length === 1 ? l[0] : [l, '|']])
       } else {
         if (Object.keys(v).length) {
           const l = build(v, depth + 1)
@@ -281,50 +283,38 @@ suite('v3', () => {
 
   suite('factor', () => {
     test('case', () => {
-      const result = factor(grammar(({ define }) => {
-        define('foo', 'bar')
-        define('a', 'b')
-        define('a', 'c')
-        define('x', 'y')
-        define('x', 'z')
-      }))
+      const result = factor(
+        grammar(({ define }) => {
+          define('foo', 'bar')
+          define('a', 'b')
+          define('a', 'c')
+          define('x', 'y')
+          define('x', 'z')
+        })
+      )
 
-      expect(result).to.eql([
-        ['foo', 'bar'],
-        ['a', [['b', 'c'], '|']],
-        ['x', [['y', 'z'], '|']]
-      ])
+      expect(result).to.eql(
+        grammar(({ define, choose }) => {
+          define('foo', 'bar')
+          define('a', choose(
+            'b',
+            'c'
+          ))
+          define('x', choose(
+            'y',
+            'z'
+          ))
+        })
+      )
     })
 
-    test.only('case', () => {
+    test('case', () => {
       const result = factor(
         grammar(({ define, concat }) => {
           define('a', concat('b', 'c'))
           define('a', concat('b', /d/))
         })
       )
-
-      // require('clipboardy').writeSync(JSON.stringify(result, 0, 2))
-      /*
-      -[
-      -  [
-      -    "a"
-      -    [
-      -      [
-      -        "b"
-      -        [
-      -          [
-      -            "c"
-      -            /d/
-      -          ]
-      -          "|"
-      -        ]
-      -      ]
-      -      ","
-      -    ]
-      -  ]
-      -]
-      */
 
       expect(result).to.eql(
         grammar(({ define, concat, choose }) => {
@@ -334,7 +324,7 @@ suite('v3', () => {
     })
   })
 
-  suite('left recursion', () => {
+  suite.skip('left recursion', () => {
     test('case', () => {
       expect(
         optimize(
